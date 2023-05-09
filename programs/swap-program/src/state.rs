@@ -26,8 +26,8 @@ pub struct LiquidityPool {
 impl LiquidityPool {
     pub const SEED_PREFIX: &'static str = "liquidity_pool";
 
-    /// Anchor discriminator + u8
-    pub const SPACE: usize = 8 + 1;
+    /// Anchor discriminator + (Pubkey * 10) + u8
+    pub const SPACE: usize = 8 + (32 * 10) + 1;
 
     /// Constant-Product (K)
     pub const K: u64 = 10000;

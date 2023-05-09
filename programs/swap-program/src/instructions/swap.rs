@@ -1,6 +1,6 @@
 //! Instruction: SwapDia
 use anchor_lang::prelude::*;
-use anchor_spl::token::{Mint, Token, TokenAccount};
+use anchor_spl::token;
 
 use crate::state::*;
 
@@ -11,16 +11,16 @@ pub fn swap(ctx: Context<Swap>, amount_to_swap: u64) -> Result<()> {
     // `LiquidityPool` account and are in the correct order
     let pool = &ctx.accounts.pool;
     let assets = [
-        &ctx.accounts.pool_cannon,
-        &ctx.accounts.pool_compass,
-        &ctx.accounts.pool_fishing_net,
-        &ctx.accounts.pool_gold,
-        &ctx.accounts.pool_grappling_hook,
-        &ctx.accounts.pool_gunpowder,
-        &ctx.accounts.pool_musket,
-        &ctx.accounts.pool_rum,
-        &ctx.accounts.pool_telescope,
-        &ctx.accounts.pool_treasure_map,
+        ctx.accounts.pool_cannon.as_ref(),
+        ctx.accounts.pool_compass.as_ref(),
+        ctx.accounts.pool_fishing_net.as_ref(),
+        ctx.accounts.pool_gold.as_ref(),
+        ctx.accounts.pool_grappling_hook.as_ref(),
+        ctx.accounts.pool_gunpowder.as_ref(),
+        ctx.accounts.pool_musket.as_ref(),
+        ctx.accounts.pool_rum.as_ref(),
+        ctx.accounts.pool_telescope.as_ref(),
+        ctx.accounts.pool_treasure_map.as_ref(),
     ];
     pool.check_asset_keys(&assets)?;
 
@@ -50,95 +50,95 @@ pub fn swap(ctx: Context<Swap>, amount_to_swap: u64) -> Result<()> {
 
 #[derive(Accounts)]
 pub struct Swap<'info> {
-    /// Liquidity Pool
+    // Liquidity Pool
     #[account(
         mut,
         seeds = [LiquidityPool::SEED_PREFIX.as_bytes()],
         bump = pool.bump,
     )]
     pub pool: Account<'info, LiquidityPool>,
-    /// Liquidity Pool token accounts
+    // Liquidity Pool token accounts
     #[account(
-        token::mint = pool.mint_cannon,
-        token::authority = pool,
+        associated_token::mint = pool.mint_cannon,
+        associated_token::authority = pool,
     )]
-    pub pool_cannon: Account<'info, TokenAccount>,
+    pub pool_cannon: Box<Account<'info, token::TokenAccount>>,
     #[account(
-        token::mint = pool.mint_compass,
-        token::authority = pool,
+        associated_token::mint = pool.mint_compass,
+        associated_token::authority = pool,
     )]
-    pub pool_compass: Account<'info, TokenAccount>,
+    pub pool_compass: Box<Account<'info, token::TokenAccount>>,
     #[account(
-        token::mint = pool.mint_fishing_net,
-        token::authority = pool,
+        associated_token::mint = pool.mint_fishing_net,
+        associated_token::authority = pool,
     )]
-    pub pool_fishing_net: Account<'info, TokenAccount>,
+    pub pool_fishing_net: Box<Account<'info, token::TokenAccount>>,
     #[account(
-        token::mint = pool.mint_gold,
-        token::authority = pool,
+        associated_token::mint = pool.mint_gold,
+        associated_token::authority = pool,
     )]
-    pub pool_gold: Account<'info, TokenAccount>,
+    pub pool_gold: Box<Account<'info, token::TokenAccount>>,
     #[account(
-        token::mint = pool.mint_grappling_hook,
-        token::authority = pool,
+        associated_token::mint = pool.mint_grappling_hook,
+        associated_token::authority = pool,
     )]
-    pub pool_grappling_hook: Account<'info, TokenAccount>,
+    pub pool_grappling_hook: Box<Account<'info, token::TokenAccount>>,
     #[account(
-        token::mint = pool.mint_gunpowder,
-        token::authority = pool,
+        associated_token::mint = pool.mint_gunpowder,
+        associated_token::authority = pool,
     )]
-    pub pool_gunpowder: Account<'info, TokenAccount>,
+    pub pool_gunpowder: Box<Account<'info, token::TokenAccount>>,
     #[account(
-        token::mint = pool.mint_musket,
-        token::authority = pool,
+        associated_token::mint = pool.mint_musket,
+        associated_token::authority = pool,
     )]
-    pub pool_musket: Account<'info, TokenAccount>,
+    pub pool_musket: Box<Account<'info, token::TokenAccount>>,
     #[account(
-        token::mint = pool.mint_rum,
-        token::authority = pool,
+        associated_token::mint = pool.mint_rum,
+        associated_token::authority = pool,
     )]
-    pub pool_rum: Account<'info, TokenAccount>,
+    pub pool_rum: Box<Account<'info, token::TokenAccount>>,
     #[account(
-        token::mint = pool.mint_telescope,
-        token::authority = pool,
+        associated_token::mint = pool.mint_telescope,
+        associated_token::authority = pool,
     )]
-    pub pool_telescope: Account<'info, TokenAccount>,
+    pub pool_telescope: Box<Account<'info, token::TokenAccount>>,
     #[account(
-        token::mint = pool.mint_treasure_map,
-        token::authority = pool,
+        associated_token::mint = pool.mint_treasure_map,
+        associated_token::authority = pool,
     )]
-    pub pool_treasure_map: Account<'info, TokenAccount>,
-    /// The "receive" asset - requesting to receive in exchange
-    pub receive_mint: Account<'info, Mint>,
-    #[account(
-        mut,
-        token::mint = receive_mint,
-        token::authority = pool,
-    )]
-    pub pool_receive_token_account: Account<'info, TokenAccount>,
+    pub pool_treasure_map: Box<Account<'info, token::TokenAccount>>,
+    // The "receive" asset - requesting to receive in exchange
+    pub receive_mint: Box<Account<'info, token::Mint>>,
     #[account(
         mut,
-        token::mint = receive_mint,
-        token::authority = payer,
+        associated_token::mint = receive_mint,
+        associated_token::authority = pool,
     )]
-    pub payer_receive_token_account: Account<'info, TokenAccount>,
-    /// The "pay" asset - requesting to be exchanged
-    pub pay_mint: Account<'info, Mint>,
+    pub pool_receive_token_account: Box<Account<'info, token::TokenAccount>>,
     #[account(
         mut,
-        token::mint = pay_mint,
-        token::authority = pool,
+        associated_token::mint = receive_mint,
+        associated_token::authority = payer,
     )]
-    pub pool_pay_token_account: Account<'info, TokenAccount>,
+    pub payer_receive_token_account: Box<Account<'info, token::TokenAccount>>,
+    // The "pay" asset - requesting to be exchanged
+    pub pay_mint: Box<Account<'info, token::Mint>>,
     #[account(
         mut,
-        token::mint = pay_mint,
-        token::authority = payer,
+        associated_token::mint = pay_mint,
+        associated_token::authority = pool,
     )]
-    pub payer_pay_token_account: Account<'info, TokenAccount>,
-    /// The authority requesting to swap (user)
+    pub pool_pay_token_account: Box<Account<'info, token::TokenAccount>>,
+    #[account(
+        mut,
+        associated_token::mint = pay_mint,
+        associated_token::authority = payer,
+    )]
+    pub payer_pay_token_account: Box<Account<'info, token::TokenAccount>>,
+    // The authority requesting to swap (user)
     #[account(mut)]
     pub payer: Signer<'info>,
-    /// Required programs
-    pub token_program: Program<'info, Token>,
+    // Required programs
+    pub token_program: Program<'info, token::Token>,
 }

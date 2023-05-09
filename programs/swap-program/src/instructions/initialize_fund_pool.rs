@@ -1,6 +1,6 @@
 //! Instruction: InitializePriceData
 use anchor_lang::prelude::*;
-use anchor_spl::token::{Token, TokenAccount};
+use anchor_spl::token;
 
 use crate::state::*;
 
@@ -29,16 +29,16 @@ pub fn initialize_fund_pool(
     // `LiquidityPool` account and are in the correct order
     let pool = &ctx.accounts.pool;
     let assets = [
-        &ctx.accounts.pool_cannon,
-        &ctx.accounts.pool_compass,
-        &ctx.accounts.pool_fishing_net,
-        &ctx.accounts.pool_gold,
-        &ctx.accounts.pool_grappling_hook,
-        &ctx.accounts.pool_gunpowder,
-        &ctx.accounts.pool_musket,
-        &ctx.accounts.pool_rum,
-        &ctx.accounts.pool_telescope,
-        &ctx.accounts.pool_treasure_map,
+        ctx.accounts.pool_cannon.as_ref(),
+        ctx.accounts.pool_compass.as_ref(),
+        ctx.accounts.pool_fishing_net.as_ref(),
+        ctx.accounts.pool_gold.as_ref(),
+        ctx.accounts.pool_grappling_hook.as_ref(),
+        ctx.accounts.pool_gunpowder.as_ref(),
+        ctx.accounts.pool_musket.as_ref(),
+        ctx.accounts.pool_rum.as_ref(),
+        ctx.accounts.pool_telescope.as_ref(),
+        ctx.accounts.pool_treasure_map.as_ref(),
     ];
     pool.check_asset_keys(&assets)?;
 
@@ -46,53 +46,53 @@ pub fn initialize_fund_pool(
     // accounts to the pool's token accounts
     let deposits = [
         (
-            &ctx.accounts.payer_cannon,
-            &ctx.accounts.pool_cannon,
+            ctx.accounts.payer_cannon.as_ref(),
+            ctx.accounts.pool_cannon.as_ref(),
             args.fund_amount_cannon,
         ),
         (
-            &ctx.accounts.payer_compass,
-            &ctx.accounts.pool_compass,
+            ctx.accounts.payer_compass.as_ref(),
+            ctx.accounts.pool_compass.as_ref(),
             args.fund_amount_compass,
         ),
         (
-            &ctx.accounts.payer_fishing_net,
-            &ctx.accounts.pool_fishing_net,
+            ctx.accounts.payer_fishing_net.as_ref(),
+            ctx.accounts.pool_fishing_net.as_ref(),
             args.fund_amount_fishing_net,
         ),
         (
-            &ctx.accounts.payer_gold,
-            &ctx.accounts.pool_gold,
+            ctx.accounts.payer_gold.as_ref(),
+            ctx.accounts.pool_gold.as_ref(),
             args.fund_amount_gold,
         ),
         (
-            &ctx.accounts.payer_grappling_hook,
-            &ctx.accounts.pool_grappling_hook,
+            ctx.accounts.payer_grappling_hook.as_ref(),
+            ctx.accounts.pool_grappling_hook.as_ref(),
             args.fund_amount_grappling_hook,
         ),
         (
-            &ctx.accounts.payer_gunpowder,
-            &ctx.accounts.pool_gunpowder,
+            ctx.accounts.payer_gunpowder.as_ref(),
+            ctx.accounts.pool_gunpowder.as_ref(),
             args.fund_amount_gunpowder,
         ),
         (
-            &ctx.accounts.payer_musket,
-            &ctx.accounts.pool_musket,
+            ctx.accounts.payer_musket.as_ref(),
+            ctx.accounts.pool_musket.as_ref(),
             args.fund_amount_musket,
         ),
         (
-            &ctx.accounts.payer_rum,
-            &ctx.accounts.pool_rum,
+            ctx.accounts.payer_rum.as_ref(),
+            ctx.accounts.pool_rum.as_ref(),
             args.fund_amount_rum,
         ),
         (
-            &ctx.accounts.payer_telescope,
-            &ctx.accounts.pool_telescope,
+            ctx.accounts.payer_telescope.as_ref(),
+            ctx.accounts.pool_telescope.as_ref(),
             args.fund_amount_telescope,
         ),
         (
-            &ctx.accounts.payer_treasure_map,
-            &ctx.accounts.pool_treasure_map,
+            ctx.accounts.payer_treasure_map.as_ref(),
+            ctx.accounts.pool_treasure_map.as_ref(),
             args.fund_amount_treasure_map,
         ),
     ];
@@ -105,98 +105,138 @@ pub fn initialize_fund_pool(
 
 #[derive(Accounts)]
 pub struct InitializeFundPool<'info> {
-    /// Liquidity Pool
+    // Liquidity Pool
     #[account(
         mut,
         seeds = [LiquidityPool::SEED_PREFIX.as_bytes()],
         bump = pool.bump,
     )]
     pub pool: Account<'info, LiquidityPool>,
-    /// Liquidity Pool token accounts
+    // Liquidity Pool token accounts
     #[account(
         mut,
-        token::mint = pool.mint_cannon,
-        token::authority = pool,
+        associated_token::mint = pool.mint_cannon,
+        associated_token::authority = pool,
     )]
-    pub pool_cannon: Account<'info, TokenAccount>,
+    pub pool_cannon: Box<Account<'info, token::TokenAccount>>,
     #[account(
         mut,
-        token::mint = pool.mint_compass,
-        token::authority = pool,
+        associated_token::mint = pool.mint_compass,
+        associated_token::authority = pool,
     )]
-    pub pool_compass: Account<'info, TokenAccount>,
+    pub pool_compass: Box<Account<'info, token::TokenAccount>>,
     #[account(
         mut,
-        token::mint = pool.mint_fishing_net,
-        token::authority = pool,
+        associated_token::mint = pool.mint_fishing_net,
+        associated_token::authority = pool,
     )]
-    pub pool_fishing_net: Account<'info, TokenAccount>,
+    pub pool_fishing_net: Box<Account<'info, token::TokenAccount>>,
     #[account(
         mut,
-        token::mint = pool.mint_gold,
-        token::authority = pool,
+        associated_token::mint = pool.mint_gold,
+        associated_token::authority = pool,
     )]
-    pub pool_gold: Account<'info, TokenAccount>,
+    pub pool_gold: Box<Account<'info, token::TokenAccount>>,
     #[account(
         mut,
-        token::mint = pool.mint_grappling_hook,
-        token::authority = pool,
+        associated_token::mint = pool.mint_grappling_hook,
+        associated_token::authority = pool,
     )]
-    pub pool_grappling_hook: Account<'info, TokenAccount>,
+    pub pool_grappling_hook: Box<Account<'info, token::TokenAccount>>,
     #[account(
         mut,
-        token::mint = pool.mint_gunpowder,
-        token::authority = pool,
+        associated_token::mint = pool.mint_gunpowder,
+        associated_token::authority = pool,
     )]
-    pub pool_gunpowder: Account<'info, TokenAccount>,
+    pub pool_gunpowder: Box<Account<'info, token::TokenAccount>>,
     #[account(
         mut,
-        token::mint = pool.mint_musket,
-        token::authority = pool,
+        associated_token::mint = pool.mint_musket,
+        associated_token::authority = pool,
     )]
-    pub pool_musket: Account<'info, TokenAccount>,
+    pub pool_musket: Box<Account<'info, token::TokenAccount>>,
     #[account(
         mut,
-        token::mint = pool.mint_rum,
-        token::authority = pool,
+        associated_token::mint = pool.mint_rum,
+        associated_token::authority = pool,
     )]
-    pub pool_rum: Account<'info, TokenAccount>,
+    pub pool_rum: Box<Account<'info, token::TokenAccount>>,
     #[account(
         mut,
-        token::mint = pool.mint_telescope,
-        token::authority = pool,
+        associated_token::mint = pool.mint_telescope,
+        associated_token::authority = pool,
     )]
-    pub pool_telescope: Account<'info, TokenAccount>,
+    pub pool_telescope: Box<Account<'info, token::TokenAccount>>,
     #[account(
         mut,
-        token::mint = pool.mint_treasure_map,
-        token::authority = pool,
+        associated_token::mint = pool.mint_treasure_map,
+        associated_token::authority = pool,
     )]
-    pub pool_treasure_map: Account<'info, TokenAccount>,
-    /// Asset initial liquidity provider
+    pub pool_treasure_map: Box<Account<'info, token::TokenAccount>>,
+    // Asset initial liquidity provider
     #[account(mut)]
     pub payer: Signer<'info>,
-    /// Liquidity provider token accounts
-    #[account(mut)]
-    pub payer_cannon: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub payer_compass: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub payer_fishing_net: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub payer_gold: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub payer_grappling_hook: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub payer_gunpowder: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub payer_musket: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub payer_rum: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub payer_telescope: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub payer_treasure_map: Account<'info, TokenAccount>,
-    /// Required programs
-    pub token_program: Program<'info, Token>,
+    // Liquidity provider token accounts
+    #[account(
+        mut,
+        associated_token::mint = pool.mint_cannon,
+        associated_token::authority = pool,
+    )]
+    pub payer_cannon: Box<Account<'info, token::TokenAccount>>,
+    #[account(
+        mut,
+        associated_token::mint = pool.mint_compass,
+        associated_token::authority = pool,
+    )]
+    pub payer_compass: Box<Account<'info, token::TokenAccount>>,
+    #[account(
+        mut,
+        associated_token::mint = pool.mint_fishing_net,
+        associated_token::authority = pool,
+    )]
+    pub payer_fishing_net: Box<Account<'info, token::TokenAccount>>,
+    #[account(
+        mut,
+        associated_token::mint = pool.mint_gold,
+        associated_token::authority = pool,
+    )]
+    pub payer_gold: Box<Account<'info, token::TokenAccount>>,
+    #[account(
+        mut,
+        associated_token::mint = pool.mint_grappling_hook,
+        associated_token::authority = pool,
+    )]
+    pub payer_grappling_hook: Box<Account<'info, token::TokenAccount>>,
+    #[account(
+        mut,
+        associated_token::mint = pool.mint_gunpowder,
+        associated_token::authority = pool,
+    )]
+    pub payer_gunpowder: Box<Account<'info, token::TokenAccount>>,
+    #[account(
+        mut,
+        associated_token::mint = pool.mint_musket,
+        associated_token::authority = pool,
+    )]
+    pub payer_musket: Box<Account<'info, token::TokenAccount>>,
+    #[account(
+        mut,
+        associated_token::mint = pool.mint_rum,
+        associated_token::authority = pool,
+    )]
+    pub payer_rum: Box<Account<'info, token::TokenAccount>>,
+    #[account(
+        mut,
+        associated_token::mint = pool.mint_telescope,
+        associated_token::authority = pool,
+    )]
+    pub payer_telescope: Box<Account<'info, token::TokenAccount>>,
+    #[account(
+        mut,
+        associated_token::mint = pool.mint_treasure_map,
+        associated_token::authority = pool,
+    )]
+    pub payer_treasure_map: Box<Account<'info, token::TokenAccount>>,
+    // Required programs
+    pub token_program: Program<'info, token::Token>,
 }
