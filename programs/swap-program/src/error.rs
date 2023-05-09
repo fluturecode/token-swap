@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 
 #[error_code]
 pub enum SwapProgramError {
-    #[msg("Pool's constant product was not met")]
+    #[msg("Math overflow on `u64` value")]
     InvalidArithmetic,
 
     #[msg("Swap would result in a false constant product for pool")]

@@ -4,10 +4,10 @@ use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
 
 use crate::error::SwapProgramError;
 
-/// The account state of the `LiquidityPool`.
+/// The account state of the `LiquidityPool`
 ///
 /// It stores the mint addresses of each associated asset after being
-/// initialized.
+/// initialized
 #[account]
 pub struct LiquidityPool {
     pub mint_cannon: Pubkey,
@@ -32,9 +32,9 @@ impl LiquidityPool {
     /// Constant-Product (K)
     pub const K: u64 = 10000;
 
-    /// Validate all keys in the provided `assets` array match the mint
-    /// addresses stored in the `LiquidityPool` account and are in the correct
-    /// order
+    /// Validate all associated mint addresses for the token accounts in the
+    /// provided `assets` array match the mint addresses stored in the
+    /// `LiquidityPool` account and are in the correct order
     pub fn check_asset_keys(&self, assets: &[&Account<'_, TokenAccount>; 10]) -> Result<()> {
         assert_key(&assets[0].mint, &self.mint_cannon)?;
         assert_key(&assets[1].mint, &self.mint_compass)?;
@@ -66,7 +66,7 @@ impl LiquidityPool {
         Ok(())
     }
 
-    /// Process a swap by using the constant-product algorithm `f(K)` to
+    /// Process a swap by using the constant-product algorithm `f(p)` to
     /// determine the allowed amount of the receiving asset that can be returned
     /// in exchange for the amount of the paid asset offered then transferring
     /// both assets between the pool and payer
@@ -179,7 +179,7 @@ fn process_transfer_to_pool<'info>(
     )
 }
 
-/// Process a transfer from  one of the pool's token accounts to one of the
+/// Process a transfer from one of the pool's token accounts to one of the
 /// payer's token accounts using a CPI with signer seeds
 fn process_transfer_from_pool<'info>(
     from: &Account<'info, TokenAccount>,
@@ -202,10 +202,10 @@ fn process_transfer_from_pool<'info>(
     )
 }
 
-/// The algorithm `f(K)` to determine the allowed amount of the receiving asset
+/// The algorithm `f(p)` to determine the allowed amount of the receiving asset
 /// that can be returned in exchange for the amount of the paid asset offered
 ///
-/// r = (R * p) / (P + p)
+/// r = f(p) = (R * p) / (P + p)
 fn determine_swap_receive(
     pool_recieve_balance: u64,
     pool_pay_balance: u64,

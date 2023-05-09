@@ -19,7 +19,7 @@ PR = PR + Pr + Rp + pr
 r = [-1 * (R * p)] / (P + p)
 
 // We know r will be negative, so
-r = (R * p) / (P + p)
+r = f(p) = (R * p) / (P + p)
 ```
 
 ### Spec Limitations

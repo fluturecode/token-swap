@@ -24,9 +24,9 @@ pub fn initialize_fund_pool(
     ctx: Context<InitializeFundPool>,
     args: InitializeFundPoolArgs,
 ) -> Result<()> {
-    // Validate all keys in the provided `assets` array match the mint
-    // addresses stored in the `LiquidityPool` account and are in the correct
-    // order
+    // Validate all associated mint addresses for the token accounts in the
+    // provided `assets` array match the mint addresses stored in the
+    // `LiquidityPool` account and are in the correct order
     let pool = &ctx.accounts.pool;
     let assets = [
         &ctx.accounts.pool_cannon,

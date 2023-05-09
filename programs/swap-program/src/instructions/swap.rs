@@ -6,9 +6,9 @@ use crate::state::*;
 
 /// Swap assets using the DEX
 pub fn swap(ctx: Context<Swap>, amount_to_swap: u64) -> Result<()> {
-    // Validate all keys in the provided `assets` array match the mint
-    // addresses stored in the `LiquidityPool` account and are in the correct
-    // order
+    // Validate all associated mint addresses for the token accounts in the
+    // provided `assets` array match the mint addresses stored in the
+    // `LiquidityPool` account and are in the correct order
     let pool = &ctx.accounts.pool;
     let assets = [
         &ctx.accounts.pool_cannon,
@@ -24,7 +24,7 @@ pub fn swap(ctx: Context<Swap>, amount_to_swap: u64) -> Result<()> {
     ];
     pool.check_asset_keys(&assets)?;
 
-    // Process a swap by using the constant-product algorithm `f(K)` to
+    // Process a swap by using the constant-product algorithm `f(p)` to
     // determine the allowed amount of the receiving asset that can be returned
     // in exchange for the amount of the paid asset offered then transferring
     // both assets between the pool and payer
