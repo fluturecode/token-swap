@@ -21,3 +21,9 @@ r = [-1 * (R * p)] / (P + p)
 // We know r will be negative, so
 r = (R * p) / (P + p)
 ```
+
+### Spec Limitations
+* This spec is assuming everything has a price of $1 per unit
+* This spec has not identified a peg currency (such as $SOL, $USD, $USDC, or $GOLD)
+* This spec has used some arbitrary value for `K`
+* This spec has no tests
