@@ -10,15 +10,13 @@ In a Decentralized Exchange (DEX), a common way to manage a liquidity pool is th
 Consider a request to swap `p` number of one asset for some unknown number of another asset `r`:
 ```
 K = a * b * c * d * P * R
-K = a * b * c * d * (P * p) * (R * r)
+K = a * b * c * d * (P + p) * (R - r)
 
-P * R = (P * p) * (R * r)
-PR = PR + Pr + Rp + pr
-0 = Pr + Rp + pr
--Rp = r(P + p)
-r = [-1 * (R * p)] / (P + p)
-
-// We know r will be negative, so
+P * R = (P + p) * (R - r)
+PR = PR - Pr + Rp - pr
+0 = 0 - Pr + Rp - pr
+Pr + pr = Rp
+Rp = r(P + p)
 r = f(p) = (R * p) / (P + p)
 ```
 
