@@ -8,16 +8,16 @@ use crate::state::*;
 pub fn swap(ctx: Context<Swap>, amount_to_swap: u64) -> Result<()> {
     let pool = &mut ctx.accounts.pool;
 
-    // Receive: The assets the user is requesting to receive in exchange: (Mint,
-    // From, To)
+    // Receive: The assets the user is requesting to receive in exchange:
+    // (Mint, From, To)
     let receive = (
         ctx.accounts.receive_mint.as_ref(),
         ctx.accounts.pool_receive_token_account.as_ref(),
         ctx.accounts.payer_receive_token_account.as_ref(),
     );
 
-    // Pay: The assets the user is proposing to pay in the swap: (Mint, From,
-    // To, Authority, Amount)
+    // Pay: The assets the user is proposing to pay in the swap:
+    // (Mint, From, To, Amount)
     let pay = (
         ctx.accounts.pay_mint.as_ref(),
         ctx.accounts.payer_pay_token_account.as_ref(),
