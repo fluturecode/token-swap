@@ -12,16 +12,28 @@ Consider a request to swap `p` number of one asset for some unknown number of an
 K = a * b * c * d * P * R
 K = a * b * c * d * (P + p) * (R - r)
 
-P * R = (P + p) * (R - r)
+a * b * c * d * P * R = a * b * c * d * (P + p) * (R - r)
+PR = (P + p) * (R - r)
 PR = PR - Pr + Rp - pr
 0 = 0 - Pr + Rp - pr
-Pr + pr = Rp
-Rp = r(P + p)
+-Rp = -Pr - pr
+-Rp = r(-P - p)
+r = (-Rp) / (-P - p)
+r = [-1 * Rp] / [-1 * (P + p)]
+r = Rp / (P + p)
+
 r = f(p) = (R * p) / (P + p)
 ```
 
-### Spec Limitations
-* This spec is assuming everything has a price of $1 per unit
-* This spec has not identified a peg currency (such as $SOL, $USD, $USDC, or $GOLD)
-* This spec has used some arbitrary value for `K`
-* This spec has no tests
+### General Workshop Flow:
+* DeFi overview
+* DEX's and Constant-Product Algorithm
+* SPL tokens and decimal places
+* Inspect the program
+    * Adding liquidity
+    * Swapping
+        * Emphasize on CP algorithm (nominal vs. real quantities and K)
+* Build & Deploy to localnet
+* Run tests
+    * Inspect logs
+* UI

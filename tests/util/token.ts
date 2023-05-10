@@ -9,18 +9,26 @@ import {
 import { 
     Connection,
     Keypair, 
+    PublicKey, 
     SystemProgram, 
 } from "@solana/web3.js";
 import { buildTransaction } from "./transaction";
 import { logNewMint } from "./log";
 
+export function toBigIntQuantity(quantity: number, decimals: number): bigint {
+    return BigInt(quantity) * (BigInt(10) ** BigInt(decimals));
+}
+
 export async function mintNewTokens(
-    asset: string,
     connection: Connection,
-    mintKeypair: Keypair,
     payer: Keypair,
-    quantity: number,
+    mintKeypair: Keypair,
+    asset: [string, number, number],
 ) {
+    const assetName = asset[0];
+    const decimals = asset[1];
+    const quantity = asset[2];
+
     const tokenAccount = getAssociatedTokenAddressSync(mintKeypair.publicKey, payer.publicKey);
 
     const createMintAccountIx = SystemProgram.createAccount({
@@ -32,7 +40,7 @@ export async function mintNewTokens(
     });
     const initializeMintIx = createInitializeMintInstruction(
         mintKeypair.publicKey,
-        9,
+        decimals,
         payer.publicKey,
         payer.publicKey,
     );
@@ -46,7 +54,7 @@ export async function mintNewTokens(
         mintKeypair.publicKey,
         tokenAccount,
         payer.publicKey,
-        quantity,
+        toBigIntQuantity(quantity, decimals),
     );
 
     const tx = await buildTransaction(
@@ -61,5 +69,30 @@ export async function mintNewTokens(
         ],
     );
     const signature = await connection.sendTransaction(tx);
-    logNewMint(asset.toUpperCase(), mintKeypair.publicKey, signature);
+    logNewMint(assetName.toUpperCase(), decimals, quantity, mintKeypair.publicKey, signature);
+}
+
+export async function mintExistingTokens(
+    connection: Connection,
+    mint: PublicKey,
+    payer: Keypair,
+    quantity: number,
+    decimals: number,
+) {
+    const tokenAccount = getAssociatedTokenAddressSync(mint, payer.publicKey);
+
+    const mintToWalletIx = createMintToInstruction(
+        mint,
+        tokenAccount,
+        payer.publicKey,
+        toBigIntQuantity(quantity, decimals),
+    );
+
+    const tx = await buildTransaction(
+        connection, 
+        payer.publicKey, 
+        [payer], 
+        [mintToWalletIx],
+    );
+    const signature = await connection.sendTransaction(tx);
 }

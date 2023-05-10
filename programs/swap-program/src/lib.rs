@@ -7,24 +7,20 @@ pub mod state;
 use anchor_lang::prelude::*;
 use instructions::*;
 
-declare_id!("25oCdYAQKYPUj17S678SyNKtjg1FeuoJtJgZXCKJPdky");
+declare_id!("fK3XTELdpKjz79dzvzN9XPV1ChBJxySxqZLhFnqbbUw");
 
 #[program]
 pub mod swap_program {
     use super::*;
 
-    /// (1) Initialize the program by creating the liquidity pool and all
-    /// associated token accounts for all assets
-    pub fn initialize_create_pool(ctx: Context<InitializeCreatePool>) -> Result<()> {
-        instructions::initialize_create_pool(ctx)
+    /// Initialize the program by creating the liquidity pool
+    pub fn create_pool(ctx: Context<CreatePool>) -> Result<()> {
+        instructions::create_pool(ctx)
     }
 
-    /// (2) Initialize the program by funding the liquidity pool with assets
-    pub fn initialize_fund_pool(
-        ctx: Context<InitializeFundPool>,
-        args: InitializeFundPoolArgs,
-    ) -> Result<()> {
-        instructions::initialize_fund_pool(ctx, args)
+    /// Provide liquidity to the pool by funding it with some asset
+    pub fn fund_pool(ctx: Context<FundPool>, amount: u64) -> Result<()> {
+        instructions::fund_pool(ctx, amount)
     }
 
     /// Swap assets using the DEX

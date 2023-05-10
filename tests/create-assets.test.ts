@@ -9,27 +9,32 @@ describe("[Running Setup Script]: Create Assets", () => {
   const payer = (provider.wallet as anchor.Wallet).payer
   anchor.setProvider(provider);
 
-  it("", async () => {
+  /**
+   * Creates an SPL token for each asset in the list of assets, with the provided configurations
+   */
+  it("          Creating Assets", async () => {
     let assets_conf = {
         assets: [],
     };
-    const assets: [string, number][] = [
-        ["cannons", 80],
-        ["compasses", 20],
-        ["fishing_nets", 50],
-        ["gold", 500],
-        ["grappling_hooks", 50],
-        ["gunpowder", 60],
-        ["muskets", 60],
-        ["rum", 100],
-        ["telescopes", 20],
-        ["treasure_maps", 10],
+    // Name, decimals, quantity
+    const assets: [string, number, number][] = [
+        ["cannons", 3, 80],
+        ["cannon_balls", 9, 60],
+        ["compasses", 3, 20],
+        ["fishing_nets", 3, 50],
+        ["gold", 6, 500],
+        ["grappling_hooks", 3, 50],
+        ["gunpowder", 9, 60],
+        ["muskets", 3, 60],
+        ["rum", 6, 100],
+        ["telescopes", 3, 20],
+        ["treasure_maps", 3, 10],
     ];
 
-    for (const [a, q] of assets) {
+    for (const a of assets) {
         const mintKeypair = Keypair.generate();
-        await mintNewTokens(a, provider.connection, mintKeypair, payer, q);
-        assets_conf.assets.push({name: a, quantity: q, address: mintKeypair.publicKey.toBase58()});
+        await mintNewTokens(provider.connection, payer, mintKeypair, a);
+        assets_conf.assets.push({name: a[0], decimals: a[1], quantity: a[2], address: mintKeypair.publicKey.toBase58()});
     }
 
     fs.writeFileSync("./tests/util/assets.json", JSON.stringify(assets_conf));

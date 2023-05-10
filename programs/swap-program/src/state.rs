@@ -1,164 +1,233 @@
 //! Swap program account state
-use anchor_lang::prelude::*;
-use anchor_spl::token::{transfer, Token, TokenAccount, Transfer};
+use anchor_lang::{prelude::*, system_program};
+use anchor_spl::token::{transfer, Mint, Token, TokenAccount, Transfer};
+use std::ops::{Add, Div, Mul};
 
 use crate::error::SwapProgramError;
 
-/// The account state of the `LiquidityPool`
-///
-/// It stores the mint addresses of each associated asset after being
-/// initialized
+/// The `LiquidityPool` state - the inner data of the program-derived address
+/// that will be our Liquidity Pool
 #[account]
 pub struct LiquidityPool {
-    pub mint_cannon: Pubkey,
-    pub mint_compass: Pubkey,
-    pub mint_fishing_net: Pubkey,
-    pub mint_gold: Pubkey,
-    pub mint_grappling_hook: Pubkey,
-    pub mint_gunpowder: Pubkey,
-    pub mint_musket: Pubkey,
-    pub mint_rum: Pubkey,
-    pub mint_telescope: Pubkey,
-    pub mint_treasure_map: Pubkey,
+    pub assets: Vec<Pubkey>,
     pub bump: u8,
 }
 
 impl LiquidityPool {
+    /// The Liquidity Pool's seed prefix, and in this case the only seed used to
+    /// derive it's program-derived address
     pub const SEED_PREFIX: &'static str = "liquidity_pool";
 
-    /// Anchor discriminator + (Pubkey * 10) + u8
-    pub const SPACE: usize = 8 + (32 * 10) + 1;
+    /// Anchor discriminator + Vec (empty) + u8
+    pub const SPACE: usize = 8 + 4 + 1;
 
-    /// Constant-Product (K)
-    pub const K: u64 = 10000;
-
-    /// Validate all associated mint addresses for the token accounts in the
-    /// provided `assets` array match the mint addresses stored in the
-    /// `LiquidityPool` account and are in the correct order
-    pub fn check_asset_keys(&self, assets: &[&Account<'_, TokenAccount>; 10]) -> Result<()> {
-        assert_key(&assets[0].mint, &self.mint_cannon)?;
-        assert_key(&assets[1].mint, &self.mint_compass)?;
-        assert_key(&assets[2].mint, &self.mint_fishing_net)?;
-        assert_key(&assets[3].mint, &self.mint_gold)?;
-        assert_key(&assets[4].mint, &self.mint_grappling_hook)?;
-        assert_key(&assets[5].mint, &self.mint_gunpowder)?;
-        assert_key(&assets[6].mint, &self.mint_musket)?;
-        assert_key(&assets[7].mint, &self.mint_rum)?;
-        assert_key(&assets[8].mint, &self.mint_telescope)?;
-        assert_key(&assets[9].mint, &self.mint_treasure_map)?;
-        Ok(())
+    /// Creates a new `LiquidityPool1 state
+    pub fn new(bump: u8) -> Self {
+        Self {
+            assets: vec![],
+            bump,
+        }
     }
+}
 
-    /// Fund the liquidity pool by transferring tokens from the payer's token
-    /// accounts to the pool's token accounts
-    pub fn fund<'info>(
-        deposits: [(
+/// Trait used to wrap functionality for the Liquidity Pool that can be called
+/// on the Liquidity Pool account as it's pulled from an Anchor Context, ie.
+/// `Account<'_, LiquidityPool>`
+pub trait LiquidityPoolAccount<'info> {
+    fn check_asset_key(&self, key: &Pubkey) -> Result<()>;
+    fn add_asset(
+        &mut self,
+        key: Pubkey,
+        payer: &Signer<'info>,
+        system_program: &Program<'info, System>,
+    ) -> Result<()>;
+    fn realloc(
+        &mut self,
+        space_to_add: usize,
+        payer: &Signer<'info>,
+        system_program: &Program<'info, System>,
+    ) -> Result<()>;
+    fn fund(
+        &mut self,
+        deposit: (
             &Account<'info, TokenAccount>,
             &Account<'info, TokenAccount>,
             u64,
-        ); 10],
+        ),
+        authority: &Signer<'info>,
+        system_program: &Program<'info, System>,
+        token_program: &Program<'info, Token>,
+    ) -> Result<()>;
+    fn process_swap(
+        &mut self,
+        receive: (
+            &Account<'info, Mint>,
+            &Account<'info, TokenAccount>,
+            &Account<'info, TokenAccount>,
+        ),
+        pay: (
+            &Account<'info, Mint>,
+            &Account<'info, TokenAccount>,
+            &Account<'info, TokenAccount>,
+            u64,
+        ),
+        authority: &Signer<'info>,
+        token_program: &Program<'info, Token>,
+    ) -> Result<()>;
+}
+
+impl<'info> LiquidityPoolAccount<'info> for Account<'info, LiquidityPool> {
+    /// Validates an asset's key is present in the Liquidity Pool's list of mint
+    /// addresses, and throws an error if it is not
+    fn check_asset_key(&self, key: &Pubkey) -> Result<()> {
+        if self.assets.contains(key) {
+            Ok(())
+        } else {
+            Err(SwapProgramError::InvalidAssetKey.into())
+        }
+    }
+
+    /// Adds an asset to the Liquidity Pool's list of mint addresses if it does
+    /// not already exist in the list
+    ///
+    /// if the mint address is added, this will require reallocation of the
+    /// account's size since the vector will be increasing by one `Pubkey`,
+    /// which has a size of 32 bytes
+    fn add_asset(
+        &mut self,
+        key: Pubkey,
+        payer: &Signer<'info>,
+        system_program: &Program<'info, System>,
+    ) -> Result<()> {
+        match self.check_asset_key(&key) {
+            Ok(()) => (),
+            Err(_) => {
+                self.realloc(32, payer, system_program)?;
+                self.assets.push(key)
+            }
+        };
+        Ok(())
+    }
+
+    /// Reallocates the account's size to accommodate for changes in the data
+    /// size. This is used in this program to reallocate the Liquidity Pool's
+    /// account when it's vector of mint addresses (`Vec<Pubkey>`) is increased
+    /// in size by pushing one `Pubkey` into the vector
+    fn realloc(
+        &mut self,
+        space_to_add: usize,
+        payer: &Signer<'info>,
+        system_program: &Program<'info, System>,
+    ) -> Result<()> {
+        let account_info = self.to_account_info();
+        let new_account_size = account_info.data_len() + space_to_add;
+
+        // Determine additional rent required
+        let lamports_required = (Rent::get()?).minimum_balance(new_account_size);
+        let additional_rent_to_fund = lamports_required - account_info.lamports();
+
+        // Perform transfer of additional rent
+        system_program::transfer(
+            CpiContext::new(
+                system_program.to_account_info(),
+                system_program::Transfer {
+                    from: payer.to_account_info(),
+                    to: account_info.clone(),
+                },
+            ),
+            additional_rent_to_fund,
+        )?;
+
+        // Reallocate the account
+        account_info.realloc(new_account_size, false)?;
+        Ok(())
+    }
+
+    /// Funds the Liquidity Pool by transferring assets from the payer's - or
+    /// Liquidity Provider's - token account to the Liquidity Pool's token
+    /// account
+    ///
+    /// In this function, the program is also going to add the mint address to
+    /// the list of mint addresses stored in the `LiquidityPool` data, if it
+    /// does not exist, and reallocate the account's size
+    fn fund(
+        &mut self,
+        deposit: (
+            &Account<'info, TokenAccount>,
+            &Account<'info, TokenAccount>,
+            u64,
+        ),
+        authority: &Signer<'info>,
+        system_program: &Program<'info, System>,
+        token_program: &Program<'info, Token>,
+    ) -> Result<()> {
+        let (from, to, amount) = deposit;
+        self.add_asset(from.mint, authority, system_program)?;
+        process_transfer_to_pool(from, to, amount, authority, token_program)?;
+        Ok(())
+    }
+
+    /// Processes the swap for the proposed assets
+    ///
+    /// This function will make sure both requested assets - the one the user is
+    /// proposing to pay and the one the user is requesting to receive in
+    /// exchange - are present in the `LiquidityPool` data's list of supported
+    /// mint addresses
+    ///
+    /// It will then calculate the amount of the requested "receive" assets
+    /// based on the user's proposed amount of asset to pay, using the
+    /// constant-product algorithm `r = f(p)`
+    ///
+    /// Once calculated, it will process both transfers
+    fn process_swap(
+        &mut self,
+        receive: (
+            &Account<'info, Mint>,
+            &Account<'info, TokenAccount>,
+            &Account<'info, TokenAccount>,
+        ),
+        pay: (
+            &Account<'info, Mint>,
+            &Account<'info, TokenAccount>,
+            &Account<'info, TokenAccount>,
+            u64,
+        ),
         authority: &Signer<'info>,
         token_program: &Program<'info, Token>,
     ) -> Result<()> {
-        for (from, to, amount) in deposits {
-            process_transfer_to_pool(from, to, amount, authority, token_program)?;
-        }
-        Ok(())
-    }
-
-    /// Process a swap by using the constant-product algorithm `f(p)` to
-    /// determine the allowed amount of the receiving asset that can be returned
-    /// in exchange for the amount of the paid asset offered then transferring
-    /// both assets between the pool and payer
-    pub fn process_swap<'info>(
-        receive: (&Account<'info, TokenAccount>, &Account<'info, TokenAccount>),
-        pay: (
-            &Account<'info, TokenAccount>,
-            &Account<'info, TokenAccount>,
-            &Signer<'info>,
-            u64,
-        ),
-        pool: &Account<'info, LiquidityPool>,
-        token_program: &Program<'info, Token>,
-    ) -> Result<()> {
         // (From, To)
-        let (pool_recieve, payer_recieve) = receive;
-        assert_mints(&payer_recieve.mint, &payer_recieve.mint)?;
+        let (receive_mint, pool_recieve, payer_recieve) = receive;
+        self.check_asset_key(&receive_mint.key())?;
         // (From, To)
-        let (payer_pay, pool_pay, pay_authority, pay_amount) = pay;
-        assert_mints(&payer_pay.mint, &pool_pay.mint)?;
+        let (pay_mint, payer_pay, pool_pay, pay_amount) = pay;
+        self.check_asset_key(&pay_mint.key())?;
         // Determine the amount the payer will recieve of the requested asset
-        let receive_amount =
-            determine_swap_receive(pool_recieve.amount, pool_pay.amount, pay_amount)?;
-        // Process the swap
-        process_transfer_to_pool(
-            payer_pay,
-            pool_pay,
+        let receive_amount = determine_swap_receive(
+            pool_recieve.amount,
+            receive_mint.decimals,
+            pool_pay.amount,
+            pay_mint.decimals,
             pay_amount,
-            pay_authority,
-            token_program,
-        )?;
-        process_transfer_from_pool(
-            pool_recieve,
-            payer_recieve,
-            receive_amount,
-            pool,
-            token_program,
-        )?;
-        Ok(())
-    }
-
-    /// Ensure that the balances of tokens in all token accounts owned by the
-    /// pool meet the constant-product value `K`
-    pub fn assert_constant_product(assets: &[&Account<'_, TokenAccount>; 10]) -> Result<()> {
-        match get_checked_product(assets) {
-            Some(product) => {
-                if product == Self::K {
-                    Ok(())
-                } else {
-                    Err(SwapProgramError::InvalidSwap.into())
-                }
-            }
-            None => Err(SwapProgramError::InvalidArithmetic.into()),
+        );
+        // Process the swap
+        if receive_amount == 0 {
+            Err(SwapProgramError::InvalidSwapNotEnoughPay.into())
+        } else {
+            process_transfer_to_pool(payer_pay, pool_pay, pay_amount, authority, token_program)?;
+            process_transfer_from_pool(
+                pool_recieve,
+                payer_recieve,
+                receive_amount,
+                self,
+                token_program,
+            )?;
+            Ok(())
         }
     }
 }
 
-/// Asserts an asset's mint address matches a mint address stored in the
-/// `LiquidityPool` account
-fn assert_key(key: &Pubkey, check: &Pubkey) -> Result<()> {
-    if !key.eq(check) {
-        return Err(SwapProgramError::InvalidAssetKey.into());
-    }
-    Ok(())
-}
-
-/// Assert's the mint addresses on two token accounts match
-fn assert_mints(mint1: &Pubkey, mint2: &Pubkey) -> Result<()> {
-    if !mint1.eq(mint2) {
-        return Err(SwapProgramError::MintMismatch.into());
-    }
-    Ok(())
-}
-
-/// Calculates the product of all asset balances using checked multiplication to
-/// catch overflows of the `u64` type
-fn get_checked_product(assets: &[&Account<'_, TokenAccount>; 10]) -> Option<u64> {
-    assets[0]
-        .amount
-        .checked_mul(assets[1].amount)?
-        .checked_mul(assets[2].amount)?
-        .checked_mul(assets[3].amount)?
-        .checked_mul(assets[4].amount)?
-        .checked_mul(assets[5].amount)?
-        .checked_mul(assets[6].amount)?
-        .checked_mul(assets[7].amount)?
-        .checked_mul(assets[8].amount)?
-        .checked_mul(assets[9].amount)
-}
-
-/// Process a transfer from one of the payer's token accounts to one of the
-/// pool's token accounts using a CPI
+/// Process a transfer from one the payer's token account to the
+/// pool's token account using a CPI
 fn process_transfer_to_pool<'info>(
     from: &Account<'info, TokenAccount>,
     to: &Account<'info, TokenAccount>,
@@ -179,8 +248,8 @@ fn process_transfer_to_pool<'info>(
     )
 }
 
-/// Process a transfer from one of the pool's token accounts to one of the
-/// payer's token accounts using a CPI with signer seeds
+/// Process a transfer from the pool's token account to the
+/// payer's token account using a CPI with signer seeds
 fn process_transfer_from_pool<'info>(
     from: &Account<'info, TokenAccount>,
     to: &Account<'info, TokenAccount>,
@@ -202,25 +271,62 @@ fn process_transfer_from_pool<'info>(
     )
 }
 
-/// The algorithm `f(p)` to determine the allowed amount of the receiving asset
-/// that can be returned in exchange for the amount of the paid asset offered
+/// The constant-product algorithm `f(p)` to determine the allowed amount of the
+/// receiving asset that can be returned in exchange for the amount of the paid
+/// asset offered
+///
+/// ```
+/// K = a * b * c * d * P * R
+/// K = a * b * c * d * (P + p) * (R - r)
+///
+/// a * b * c * d * P * R = a * b * c * d * (P + p) * (R - r)
+/// PR = (P + p) * (R - r)
+/// PR = PR - Pr + Rp - pr
+/// 0 = 0 - Pr + Rp - pr
+/// -Rp = -Pr - pr
+/// -Rp = r(-P - p)
+/// r = (-Rp) / (-P - p)
+/// r = [-1 * Rp] / [-1 * (P + p)]
+/// r = Rp / (P + p)
 ///
 /// r = f(p) = (R * p) / (P + p)
+/// ```
 fn determine_swap_receive(
     pool_recieve_balance: u64,
+    receive_decimals: u8,
     pool_pay_balance: u64,
+    pay_decimals: u8,
     pay_amount: u64,
-) -> Result<u64> {
-    let r_p = match pool_recieve_balance.checked_mul(pay_amount) {
-        Some(val) => val,
-        None => return Err(SwapProgramError::InvalidArithmetic.into()),
-    };
-    let p_p = match pool_pay_balance.checked_add(pay_amount) {
-        Some(val) => val,
-        None => return Err(SwapProgramError::InvalidArithmetic.into()),
-    };
-    match r_p.checked_div(p_p) {
-        Some(val) => Ok(val),
-        None => Err(SwapProgramError::InvalidArithmetic.into()),
-    }
+) -> u64 {
+    // Convert all values to nominal floats using their respective mint decimal
+    // places
+    let big_r = convert_to_float(pool_recieve_balance, receive_decimals);
+    let big_p = convert_to_float(pool_pay_balance, pay_decimals);
+    let p = convert_to_float(pay_amount, pay_decimals);
+    // Calculate `f(p)` to get `r`
+    let bigr_times_p = big_r.mul(p);
+    let bigp_plus_p = big_p.add(p);
+    let r = bigr_times_p.div(bigp_plus_p);
+    // Return the real value of `r`
+    convert_from_float(r, receive_decimals)
+}
+
+/// Converts a `u64` value - in this case the balance of a token account - into
+/// an `f32` by using the `decimals` value of its associated mint to get the
+/// nominal quantity of a mint stored in that token account
+///
+/// For example, a token account with a balance of 10,500 for a mint with 3
+/// decimals would have a nominal balance of 10.5
+fn convert_to_float(value: u64, decimals: u8) -> f32 {
+    (value as f32).div(f32::powf(10.0, decimals as f32))
+}
+
+/// Converts a nominal value - in this case the calculated value `r` - into a
+/// `u64` by using the `decimals` value of its associated mint to get the real
+/// quantity of the mint that the user will receive
+///
+/// For example, if `r` is calculated to be 10.5, the real amount of the asset
+/// to be received by the user is 10,500
+fn convert_from_float(value: f32, decimals: u8) -> u64 {
+    value.mul(f32::powf(10.0, decimals as f32)) as u64
 }
