@@ -2,10 +2,16 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token;
 
+use crate::error::*;
 use crate::state::*;
 
 /// Swap assets using the DEX
 pub fn swap(ctx: Context<Swap>, amount_to_swap: u64) -> Result<()> {
+    // Make sure the amount is not zero
+    if amount_to_swap == 0 {
+        return Err(SwapProgramError::InvalidSwapZeroAmount.into());
+    }
+
     let pool = &mut ctx.accounts.pool;
 
     // Receive: The assets the user is requesting to receive in exchange:
@@ -44,6 +50,9 @@ pub struct Swap<'info> {
     pub pool: Account<'info, LiquidityPool>,
     /// The mint account for the asset the user is requesting to receive in
     /// exchange
+    #[account(
+        constraint = !receive_mint.key().eq(&pay_mint.key()) @ SwapProgramError::InvalidSwapMatchingAssets
+    )]
     pub receive_mint: Box<Account<'info, token::Mint>>,
     /// The Liquidity Pool's token account for the mint of the asset the user is
     /// requesting to receive in exchange (which will be debited)

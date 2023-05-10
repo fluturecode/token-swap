@@ -25,6 +25,11 @@ r = Rp / (P + p)
 r = f(p) = (R * p) / (P + p)
 ```
 
+### Roadmap
+* Liquidity Pool UI
+* Re-work Day 4 activity flow (interact with the pool instead of writing your own)
+* Document Day 4 workshop
+
 ### General Workshop Flow:
 * DeFi overview
 * DEX's and Constant-Product Algorithm
