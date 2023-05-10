@@ -26,6 +26,7 @@ r = f(p) = (R * p) / (P + p)
 ```
 
 ### Roadmap
+Here's what we wnat to lay down for Day 4:
 * Liquidity Pool UI
     * Want to build a cool UI for interacting with the liquidity pool via connected wallet
         * You should be able to see the assets you hold in your connected wallet
@@ -42,6 +43,19 @@ r = f(p) = (R * p) / (P + p)
     * Should we just have people use the UI or give them a challenge to write a script to hit the pool?
 * Day 4 workshop
     * Build out & prepare the workshop according to the below section
+
+And here's what we want to lay down for Day 5:
+* What tools are we going to use to enhance the swap program?
+    * Amman ?
+    * Lookup Tables ?
+    * Geyser ?
+    * any ideas ?
+* What other stuff can we add to spice things up?
+    * Arbitrage ?
+    * Enhanced AMM algorithm ?
+* How to re-use much of the Day 4 stuff without copy-pasting (if possible)?
+* General workshop flow for Day 5
+* Update Day 5 gameplan in Notion accordingly
 
 ### General Workshop Flow:
 * DeFi overview
