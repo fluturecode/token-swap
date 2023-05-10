@@ -7,7 +7,7 @@ pub mod state;
 use anchor_lang::prelude::*;
 use instructions::*;
 
-declare_id!("fK3XTELdpKjz79dzvzN9XPV1ChBJxySxqZLhFnqbbUw");
+declare_id!("58YS7hZ1Sc1zPetRioEmA3R2zumu2kMTAXkKPs6RFpWQ");
 
 #[program]
 pub mod swap_program {

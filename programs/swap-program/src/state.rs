@@ -50,6 +50,7 @@ pub trait LiquidityPoolAccount<'info> {
     fn fund(
         &mut self,
         deposit: (
+            &Account<'info, Mint>,
             &Account<'info, TokenAccount>,
             &Account<'info, TokenAccount>,
             u64,
@@ -153,6 +154,7 @@ impl<'info> LiquidityPoolAccount<'info> for Account<'info, LiquidityPool> {
     fn fund(
         &mut self,
         deposit: (
+            &Account<'info, Mint>,
             &Account<'info, TokenAccount>,
             &Account<'info, TokenAccount>,
             u64,
@@ -161,8 +163,8 @@ impl<'info> LiquidityPoolAccount<'info> for Account<'info, LiquidityPool> {
         system_program: &Program<'info, System>,
         token_program: &Program<'info, Token>,
     ) -> Result<()> {
-        let (from, to, amount) = deposit;
-        self.add_asset(from.mint, authority, system_program)?;
+        let (mint, from, to, amount) = deposit;
+        self.add_asset(mint.key(), authority, system_program)?;
         process_transfer_to_pool(from, to, amount, authority, token_program)?;
         Ok(())
     }
@@ -208,7 +210,7 @@ impl<'info> LiquidityPoolAccount<'info> for Account<'info, LiquidityPool> {
             pool_pay.amount,
             pay_mint.decimals,
             pay_amount,
-        );
+        )?;
         // Process the swap
         if receive_amount == 0 {
             Err(SwapProgramError::InvalidSwapNotEnoughPay.into())
@@ -297,7 +299,7 @@ fn determine_swap_receive(
     pool_pay_balance: u64,
     pay_decimals: u8,
     pay_amount: u64,
-) -> u64 {
+) -> Result<u64> {
     // Convert all values to nominal floats using their respective mint decimal
     // places
     let big_r = convert_to_float(pool_recieve_balance, receive_decimals);
@@ -307,8 +309,12 @@ fn determine_swap_receive(
     let bigr_times_p = big_r.mul(p);
     let bigp_plus_p = big_p.add(p);
     let r = bigr_times_p.div(bigp_plus_p);
+    // Make sure `r` does not exceed liquidity
+    if r > big_r {
+        return Err(SwapProgramError::InvalidSwapNotEnoughLiquidity.into());
+    }
     // Return the real value of `r`
-    convert_from_float(r, receive_decimals)
+    Ok(convert_from_float(r, receive_decimals))
 }
 
 /// Converts a `u64` value - in this case the balance of a token account - into

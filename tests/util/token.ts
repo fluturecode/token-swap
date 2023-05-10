@@ -1,35 +1,64 @@
 import {
     createAssociatedTokenAccountInstruction,
-    createInitializeMintInstruction, 
-    createMintToInstruction, 
-    getAssociatedTokenAddressSync, 
-    MINT_SIZE, 
+    createInitializeMintInstruction,
+    createMintToInstruction,
+    getAssociatedTokenAddressSync,
+    MINT_SIZE,
     TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
-import { 
-    Connection,
-    Keypair, 
-    PublicKey, 
-    SystemProgram, 
-} from "@solana/web3.js";
-import { buildTransaction } from "./transaction";
-import { logNewMint } from "./log";
+} from '@solana/spl-token'
+import { Connection, Keypair, PublicKey, SystemProgram } from '@solana/web3.js'
+import { buildTransaction } from './transaction'
+import { logNewMint } from './log'
 
+/**
+ *
+ * Returns the real quantity of a `quantity` parameter by
+ * increasing the number using the mint's decimal places
+ *
+ * @param quantity The provided quantity argument
+ * @param decimals The decimals of the associated mint
+ * @returns The real quantity of a `quantity` parameter
+ */
 export function toBigIntQuantity(quantity: number, decimals: number): bigint {
-    return BigInt(quantity) * (BigInt(10) ** BigInt(decimals));
+    return BigInt(quantity) * BigInt(10) ** BigInt(decimals)
 }
 
+/**
+ *
+ * Returns the nominal quantity of a `quantity` parameter by
+ * decreasing the number using the mint's decimal places
+ *
+ * @param quantity The real quantity of a `quantity` parameter
+ * @param decimals The decimals of the associated mint
+ * @returns The nominal quantity of a `quantity` parameter
+ */
+export function fromBigIntQuantity(quantity: bigint, decimals: number): string {
+    return (Number(quantity) / 10 ** decimals).toFixed(6)
+}
+
+/**
+ *
+ * Creates and mints new SPL tokens to the local keypair
+ *
+ * @param connection Connection to Solana RPC
+ * @param payer The Liquidity Provider (local wallet in `Anchor.toml`)
+ * @param mintKeypair The generated keypair to be used for the new mint
+ * @param asset The associated asset this new mint will represent
+ */
 export async function mintNewTokens(
     connection: Connection,
     payer: Keypair,
     mintKeypair: Keypair,
-    asset: [string, number, number],
+    asset: [string, number, number]
 ) {
-    const assetName = asset[0];
-    const decimals = asset[1];
-    const quantity = asset[2];
+    const assetName = asset[0]
+    const decimals = asset[1]
+    const quantity = asset[2]
 
-    const tokenAccount = getAssociatedTokenAddressSync(mintKeypair.publicKey, payer.publicKey);
+    const tokenAccount = getAssociatedTokenAddressSync(
+        mintKeypair.publicKey,
+        payer.publicKey
+    )
 
     const createMintAccountIx = SystemProgram.createAccount({
         fromPubkey: payer.publicKey,
@@ -37,62 +66,79 @@ export async function mintNewTokens(
         lamports: await connection.getMinimumBalanceForRentExemption(MINT_SIZE),
         space: MINT_SIZE,
         programId: TOKEN_PROGRAM_ID,
-    });
+    })
     const initializeMintIx = createInitializeMintInstruction(
         mintKeypair.publicKey,
         decimals,
         payer.publicKey,
-        payer.publicKey,
-    );
-    const createAssociatedtokenAccountIx = createAssociatedTokenAccountInstruction(
-        payer.publicKey,
-        tokenAccount,
-        payer.publicKey,
-        mintKeypair.publicKey,
-    );
+        payer.publicKey
+    )
+    const createAssociatedtokenAccountIx =
+        createAssociatedTokenAccountInstruction(
+            payer.publicKey,
+            tokenAccount,
+            payer.publicKey,
+            mintKeypair.publicKey
+        )
     const mintToWalletIx = createMintToInstruction(
         mintKeypair.publicKey,
         tokenAccount,
         payer.publicKey,
-        toBigIntQuantity(quantity, decimals),
-    );
+        toBigIntQuantity(quantity, decimals)
+    )
 
     const tx = await buildTransaction(
-        connection, 
-        payer.publicKey, 
-        [payer, mintKeypair], 
+        connection,
+        payer.publicKey,
+        [payer, mintKeypair],
         [
-            createMintAccountIx, 
-            initializeMintIx, 
+            createMintAccountIx,
+            initializeMintIx,
             createAssociatedtokenAccountIx,
             mintToWalletIx,
-        ],
-    );
-    const signature = await connection.sendTransaction(tx);
-    logNewMint(assetName.toUpperCase(), decimals, quantity, mintKeypair.publicKey, signature);
+        ]
+    )
+    const signature = await connection.sendTransaction(tx)
+    logNewMint(
+        assetName.toUpperCase(),
+        decimals,
+        quantity,
+        mintKeypair.publicKey,
+        signature
+    )
 }
 
+/**
+ *
+ * Mints an existing SPL token to the local keypair
+ *
+ * @param connection
+ * @param payer The Liquidity Provider (local wallet in `Anchor.toml`)
+ * @param mint The asset's mint address
+ * @param quantity The quantity to fund of the provided mint
+ * @param decimals the decimals of this mint (used to calculate real quantity)
+ */
 export async function mintExistingTokens(
     connection: Connection,
-    mint: PublicKey,
     payer: Keypair,
+    mint: PublicKey,
     quantity: number,
-    decimals: number,
+    decimals: number
 ) {
-    const tokenAccount = getAssociatedTokenAddressSync(mint, payer.publicKey);
+    const tokenAccount = getAssociatedTokenAddressSync(mint, payer.publicKey)
 
     const mintToWalletIx = createMintToInstruction(
         mint,
         tokenAccount,
         payer.publicKey,
-        toBigIntQuantity(quantity, decimals),
-    );
+        toBigIntQuantity(quantity, decimals)
+    )
 
     const tx = await buildTransaction(
-        connection, 
-        payer.publicKey, 
-        [payer], 
-        [mintToWalletIx],
-    );
-    const signature = await connection.sendTransaction(tx);
+        connection,
+        payer.publicKey,
+        [payer],
+        [mintToWalletIx]
+    )
+    await connection.sendTransaction(tx)
 }

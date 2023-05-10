@@ -6,10 +6,7 @@
     "dependencies": {
         "@coral-xyz/anchor": "^0.27.0",
         "@solana/spl-token": "^0.3.7",
-        "@solana/web3.js": "^1.75.0",
-        "@types/node": "^20.1.1",
-        "fs": "^0.0.1-security",
-        "ts-node": "^10.9.1"
+        "@solana/web3.js": "^1.75.0"
     },
     "devDependencies": {
         "@types/bn.js": "^5.1.0",

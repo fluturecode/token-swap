@@ -10,6 +10,7 @@ pub fn fund_pool(ctx: Context<FundPool>, amount: u64) -> Result<()> {
 
     // Deposit: (From, To, amount)
     let deposit = (
+        &ctx.accounts.mint,
         &ctx.accounts.payer_token_account,
         &ctx.accounts.pool_token_account,
         amount,
