@@ -27,8 +27,21 @@ r = f(p) = (R * p) / (P + p)
 
 ### Roadmap
 * Liquidity Pool UI
-* Re-work Day 4 activity flow (interact with the pool instead of writing your own)
-* Document Day 4 workshop
+    * Want to build a cool UI for interacting with the liquidity pool via connected wallet
+        * You should be able to see the assets you hold in your connected wallet
+        * You should be able to get a preview of what the swap is going to be (amount to recieve)
+    * We'll need to make sure we place the code from `tests` - such as the instructions for the program and the token account lookups - in a spot where the code can easily be shared by tests and the UI
+    * We'll also want to add some code to "preview swap" so we can use it on the front end, and integrate it into the tests as validation
+        * This code should include checks the program will enforce, such as:
+            * Amount can't be 0
+            * Mints can't match
+            * Can't overflow liquidity
+            * etc.
+* Re-work Day 4 activity flow
+    * We're going to have people just interact with the pool instead of trying to write their own
+    * Should we just have people use the UI or give them a challenge to write a script to hit the pool?
+* Day 4 workshop
+    * Build out & prepare the workshop according to the below section
 
 ### General Workshop Flow:
 * DeFi overview
