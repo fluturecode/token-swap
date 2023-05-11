@@ -4,6 +4,9 @@ import fs from 'fs'
 import { mintNewTokens } from './util/token'
 import { ASSETS } from './util/const'
 
+/**
+ * Script to create new assets and mint them to the local keypair for testing
+ */
 describe('[Running Setup Script]: Create Assets', () => {
     const provider = anchor.AnchorProvider.env()
     const payer = (provider.wallet as anchor.Wallet).payer
