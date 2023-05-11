@@ -28,10 +28,11 @@ r = f(p) = (R * p) / (P + p)
 ```
 
 ### Roadmap
-Here's what we wnat to lay down for Day 4:
+Here's what we want to lay down for Day 4:
 * Asset metadata
     * We can optionally modify the tests to include the creation of metadata accounts for the corresponding URIs provided in `ASSETS` - ideally in `create-assets.test.ts`
     * We also want to create a collection on devnet, clone it down to localnet, and make sure these tokens are part of that collection
+    * 💡 Perhaps we can use this in the Day 5 with Amman as an extra value-add?
 * Liquidity Pool UI
     * Want to build a cool UI for interacting with the liquidity pool via connected wallet
         * You should be able to see the assets you hold in your connected wallet
