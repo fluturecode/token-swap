@@ -5,6 +5,8 @@ Swap program for NYC Bootcamp
 
 ---
 
+### [<img src="https://raw.githubusercontent.com/solana-developers/pirate-bootcamp/main/docs/images/slides-icon.svg" alt="slides" width="20" align="center"/> Presentation Slides](https://docs.google.com/presentation/d/1E15mIvnMg9qvR9RPJnIC9Y4cod-QjBJpjPZ4rQpgEIE/edit?usp=sharing)
+
 In a Decentralized Exchange (DEX), a common way to manage a liquidity pool is through a Constant-Product Algorithm, which involves programmatically ensuring that the product of all assets equals some constant value `K`.  
 
 Consider a request to swap `p` number of one asset for some unknown number of another asset `r`:
@@ -44,8 +46,7 @@ Here's what we wnat to lay down for Day 4:
 * Re-work Day 4 activity flow
     * We're going to have people just interact with the pool instead of trying to write their own
     * Should we just have people use the UI or give them a challenge to write a script to hit the pool?
-* Day 4 workshop
-    * Build out & prepare the workshop according to the below section
+* ✅ Build presentation for workshop
 
 And here's what we want to lay down for Day 5:
 * What tools are we going to use to enhance the swap program?
@@ -61,14 +62,15 @@ And here's what we want to lay down for Day 5:
 * Update Day 5 gameplan in Notion accordingly
 
 ### General Workshop Flow:
-* DeFi overview
-* DEX's and Constant-Product Algorithm
-* SPL tokens and decimal places
-* Inspect the program
-    * Adding liquidity
-    * Swapping
-        * Emphasize on CP algorithm (nominal vs. real quantities and K)
-* Build & Deploy to localnet
-* Run tests
+* ✅ Presentation Slides
+    * ✅ DeFi overview
+    * ✅ DEX's and Constant-Product Algorithm
+    * ✅ SPL tokens and decimal places
+* ✅ Inspect the program
+    * ✅ Adding liquidity
+    * ✅ Swapping
+        * ✅ Emphasize on CP algorithm (nominal vs. real quantities and K)
+* ✅ Build & Deploy to localnet
+* ✅ Run tests
     * Inspect logs
-* UI
+* ⚡️ UI
