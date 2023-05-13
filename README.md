@@ -1,7 +1,7 @@
 # NYC Bootcamp Swap Program
 Swap program for NYC Bootcamp
 
-> 💎 Day 4 - Smuggling, Bargaining, and Upgrading Your Ship
+> 💎 Day 4 - Trading Goods and Upgrading Your Ship
 
 ---
 
@@ -27,8 +27,7 @@ r = Rp / (P + p)
 r = f(p) = (R * p) / (P + p)
 ```
 
-### Roadmap
-Here's what we want to lay down for Day 4:
+### To Build:
 * Asset metadata
     * We can optionally modify the tests to include the creation of metadata accounts for the corresponding URIs provided in `ASSETS` - ideally in `create-assets.test.ts`
     * We also want to create a collection on devnet, clone it down to localnet, and make sure these tokens are part of that collection
@@ -44,23 +43,6 @@ Here's what we want to lay down for Day 4:
             * Mints can't match
             * Can't overflow liquidity
             * etc.
-* Re-work Day 4 activity flow
-    * We're going to have people just interact with the pool instead of trying to write their own
-    * Should we just have people use the UI or give them a challenge to write a script to hit the pool?
-* ✅ Build presentation for workshop
-
-And here's what we want to lay down for Day 5:
-* What tools are we going to use to enhance the swap program?
-    * Amman ?
-    * Lookup Tables ?
-    * Geyser ?
-    * any ideas ?
-* What other stuff can we add to spice things up?
-    * Arbitrage ?
-    * Enhanced AMM algorithm ?
-* How to re-use much of the Day 4 stuff without copy-pasting (if possible)?
-* General workshop flow for Day 5
-* Update Day 5 gameplan in Notion accordingly
 
 ### General Workshop Flow:
 * ✅ Presentation Slides
