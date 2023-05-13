@@ -1,1 +1,70 @@
-{"assets":[{"name":"cannons","decimals":3,"quantity":80,"address":"6AxcioU3wt49sEvxnnqif4F9CwJw5cvXgpNe7JnBoF9B"},{"name":"cannon_balls","decimals":9,"quantity":60,"address":"H12XE6JCAxfsg6apmrogdoZ2yrdoFD4kVDfh3W2on8vw"},{"name":"compasses","decimals":3,"quantity":20,"address":"BGjGdZGVcBgtASfn6dcuSMeddG2nuGhikxY9bzK3SSJY"},{"name":"fishing_nets","decimals":3,"quantity":50,"address":"CdawrgSiVTe1TZjk9zGP2wgTEUbRfq1Bh7j67mHzR4t5"},{"name":"gold","decimals":6,"quantity":500,"address":"28pgsdNXbmzdALTHDrs5sP1qNmGj2QJ4FMS9Fozn85sq"},{"name":"grappling_hooks","decimals":3,"quantity":50,"address":"2VukcWkW1iD4w5aFYwAmA9XEremcEyAoT4DRwEEvXPtq"},{"name":"gunpowder","decimals":9,"quantity":60,"address":"2yo8DvaFonf1aJ5Tyxx2NTWFvSeXY3tNvZe1kMjgR6vv"},{"name":"muskets","decimals":3,"quantity":60,"address":"FSjPxoRQMEqwNJtBL2bqy4nZbCHAtTkrY9dDR61fMxCS"},{"name":"rum","decimals":6,"quantity":100,"address":"6jtHWcesAEp4pfkLbQpEqkczRUntFST6r25SuwTVGPXi"},{"name":"telescopes","decimals":3,"quantity":20,"address":"FW2tZDAdbpMentkgk5cfe6Hs31hJdfnfJEh61RcZAUVe"},{"name":"treasure_maps","decimals":3,"quantity":10,"address":"SdCfLTt8YWty6pzj6f4yCN9jASwUeWtBC7rgEcfjkZp"}]}
+{
+    "assets": [
+        {
+            "name": "cannons",
+            "decimals": 3,
+            "quantity": 80,
+            "address": "6AxcioU3wt49sEvxnnqif4F9CwJw5cvXgpNe7JnBoF9B"
+        },
+        {
+            "name": "cannon_balls",
+            "decimals": 9,
+            "quantity": 60,
+            "address": "H12XE6JCAxfsg6apmrogdoZ2yrdoFD4kVDfh3W2on8vw"
+        },
+        {
+            "name": "compasses",
+            "decimals": 3,
+            "quantity": 20,
+            "address": "BGjGdZGVcBgtASfn6dcuSMeddG2nuGhikxY9bzK3SSJY"
+        },
+        {
+            "name": "fishing_nets",
+            "decimals": 3,
+            "quantity": 50,
+            "address": "CdawrgSiVTe1TZjk9zGP2wgTEUbRfq1Bh7j67mHzR4t5"
+        },
+        {
+            "name": "gold",
+            "decimals": 6,
+            "quantity": 500,
+            "address": "28pgsdNXbmzdALTHDrs5sP1qNmGj2QJ4FMS9Fozn85sq"
+        },
+        {
+            "name": "grappling_hooks",
+            "decimals": 3,
+            "quantity": 50,
+            "address": "2VukcWkW1iD4w5aFYwAmA9XEremcEyAoT4DRwEEvXPtq"
+        },
+        {
+            "name": "gunpowder",
+            "decimals": 9,
+            "quantity": 60,
+            "address": "2yo8DvaFonf1aJ5Tyxx2NTWFvSeXY3tNvZe1kMjgR6vv"
+        },
+        {
+            "name": "muskets",
+            "decimals": 3,
+            "quantity": 60,
+            "address": "FSjPxoRQMEqwNJtBL2bqy4nZbCHAtTkrY9dDR61fMxCS"
+        },
+        {
+            "name": "rum",
+            "decimals": 6,
+            "quantity": 100,
+            "address": "6jtHWcesAEp4pfkLbQpEqkczRUntFST6r25SuwTVGPXi"
+        },
+        {
+            "name": "telescopes",
+            "decimals": 3,
+            "quantity": 20,
+            "address": "FW2tZDAdbpMentkgk5cfe6Hs31hJdfnfJEh61RcZAUVe"
+        },
+        {
+            "name": "treasure_maps",
+            "decimals": 3,
+            "quantity": 10,
+            "address": "SdCfLTt8YWty6pzj6f4yCN9jASwUeWtBC7rgEcfjkZp"
+        }
+    ]
+}
