@@ -4,6 +4,9 @@ import fs from 'fs'
 import { mintNewTokens } from './util/token'
 import { ASSETS } from './util/const'
 
+// Constant to control whether or not metadata is added to the tokens
+const METADATA = false
+
 /**
  * Script to create new assets and mint them to the local keypair for testing
  */
@@ -23,7 +26,13 @@ describe('[Running Setup Script]: Create Assets', () => {
 
         for (const a of ASSETS) {
             const mintKeypair = Keypair.generate()
-            await mintNewTokens(provider.connection, payer, mintKeypair, a)
+            await mintNewTokens(
+                provider.connection,
+                payer,
+                mintKeypair,
+                a,
+                METADATA
+            )
             assets_conf.assets.push({
                 name: a[0],
                 symbol: a[1],

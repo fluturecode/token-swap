@@ -53,7 +53,8 @@ export async function mintNewTokens(
     connection: Connection,
     payer: Keypair,
     mintKeypair: Keypair,
-    asset: [string, string, string, string, number, number]
+    asset: [string, string, string, string, number, number],
+    metadata: boolean
 ) {
     const assetName = asset[0]
     const assetSymbol = asset[1]
@@ -128,13 +129,20 @@ export async function mintNewTokens(
         connection,
         payer.publicKey,
         [payer, mintKeypair],
-        [
-            createMintAccountIx,
-            initializeMintIx,
-            createMetadataIx,
-            createAssociatedtokenAccountIx,
-            mintToWalletIx,
-        ]
+        metadata
+            ? [
+                  createMintAccountIx,
+                  initializeMintIx,
+                  createMetadataIx,
+                  createAssociatedtokenAccountIx,
+                  mintToWalletIx,
+              ]
+            : [
+                  createMintAccountIx,
+                  initializeMintIx,
+                  createAssociatedtokenAccountIx,
+                  mintToWalletIx,
+              ]
     )
     const signature = await connection.sendTransaction(tx)
     logNewMint(
