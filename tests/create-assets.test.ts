@@ -26,8 +26,11 @@ describe('[Running Setup Script]: Create Assets', () => {
             await mintNewTokens(provider.connection, payer, mintKeypair, a)
             assets_conf.assets.push({
                 name: a[0],
-                decimals: a[1],
-                quantity: a[2],
+                symbol: a[1],
+                description: a[2],
+                uri: a[3],
+                decimals: a[4],
+                quantity: a[5],
                 address: mintKeypair.publicKey.toBase58(),
             })
         }

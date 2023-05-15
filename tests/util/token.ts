@@ -1,4 +1,8 @@
 import {
+    createCreateMetadataAccountV3Instruction,
+    PROGRAM_ID as METADATA_PROGRAM_ID,
+} from '@metaplex-foundation/mpl-token-metadata'
+import {
     createAssociatedTokenAccountInstruction,
     createInitializeMintInstruction,
     createMintToInstruction,
@@ -49,11 +53,13 @@ export async function mintNewTokens(
     connection: Connection,
     payer: Keypair,
     mintKeypair: Keypair,
-    asset: [string, number, number]
+    asset: [string, string, string, string, number, number]
 ) {
     const assetName = asset[0]
-    const decimals = asset[1]
-    const quantity = asset[2]
+    const assetSymbol = asset[1]
+    const assetUri = asset[3]
+    const decimals = asset[4]
+    const quantity = asset[5]
 
     const tokenAccount = getAssociatedTokenAddressSync(
         mintKeypair.publicKey,
@@ -72,6 +78,37 @@ export async function mintNewTokens(
         decimals,
         payer.publicKey,
         payer.publicKey
+    )
+    const createMetadataIx = createCreateMetadataAccountV3Instruction(
+        {
+            metadata: PublicKey.findProgramAddressSync(
+                [
+                    Buffer.from('metadata'),
+                    METADATA_PROGRAM_ID.toBuffer(),
+                    mintKeypair.publicKey.toBuffer(),
+                ],
+                METADATA_PROGRAM_ID
+            )[0],
+            mint: mintKeypair.publicKey,
+            mintAuthority: payer.publicKey,
+            payer: payer.publicKey,
+            updateAuthority: payer.publicKey,
+        },
+        {
+            createMetadataAccountArgsV3: {
+                data: {
+                    name: assetName,
+                    symbol: assetSymbol,
+                    uri: assetUri,
+                    creators: null,
+                    sellerFeeBasisPoints: 0,
+                    uses: null,
+                    collection: null,
+                },
+                isMutable: false,
+                collectionDetails: null,
+            },
+        }
     )
     const createAssociatedtokenAccountIx =
         createAssociatedTokenAccountInstruction(
@@ -94,6 +131,7 @@ export async function mintNewTokens(
         [
             createMintAccountIx,
             initializeMintIx,
+            createMetadataIx,
             createAssociatedtokenAccountIx,
             mintToWalletIx,
         ]
