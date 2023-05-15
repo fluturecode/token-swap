@@ -192,7 +192,7 @@ describe('[Running Unit Tests]: Swap Program', async () => {
     /**
      * Runs 10 random swap tests
      */
-    for (let x = 0; x < 4; x++) {
+    for (let x = 0; x < 10; x++) {
         it('          Try Swap', async () => {
             const receiveAssetIndex = getRandomInt(maxAssetIndex)
             // Pay asset can't be the same as receive asset
