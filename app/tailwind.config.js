@@ -1,4 +1,3 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
     mode: 'jit',
     content: ['./src/**/*.{js,jsx,ts,tsx}'],
@@ -60,4 +59,4 @@ module.exports = {
         logs: true,
         rtl: false,
     },
-}
+};
