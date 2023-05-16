@@ -1,30 +1,30 @@
-import { useNetworkConfiguration } from '@/contexts/NetworkConfigurationProvider'
-import { PublicKey } from '@solana/web3.js'
-import { request } from 'https'
-import Image from 'next/image'
-import { FC, useEffect, useState } from 'react'
+import { useNetworkConfiguration } from '@/contexts/NetworkConfigurationProvider';
+import { PublicKey } from '@solana/web3.js';
+import { request } from 'https';
+import Image from 'next/image';
+import { FC, useEffect, useState } from 'react';
 
 interface AssetCardProps {
-    name: string
-    symbol: string
-    uri: string
-    balance: number
-    mint: PublicKey
-    poolTokenAccount: PublicKey
+    name: string,
+    symbol: string,
+    uri: string,
+    balance: number,
+    mint: PublicKey,
+    poolTokenAccount: PublicKey,
 }
 
 const LoanCard: FC<AssetCardProps> = (props: AssetCardProps) => {
-    const { networkConfiguration } = useNetworkConfiguration()
+    const { networkConfiguration } = useNetworkConfiguration();
     const [imagePath, setImagePath] = useState<string>('')
 
     async function getMetadataFromArweave(uri: string) {
-        const data = await fetch(uri).then((data) => data.json())
+        const data = await fetch(uri).then(data => data.json())
         setImagePath(data.image)
-    }
+      }
 
     useEffect(() => {
         getMetadataFromArweave(props.uri)
-    }, [])
+    }, [props.uri])
 
     return (
         <div className="w-auto pt-0 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
@@ -39,12 +39,7 @@ const LoanCard: FC<AssetCardProps> = (props: AssetCardProps) => {
                 </a>
             </div>
             <div className="mb-4 flex flex-row align-middle space-x-4">
-                <Image
-                    alt={props.name}
-                    src={imagePath}
-                    width="200"
-                    height="200"
-                />
+                <Image alt={props.name} src={imagePath} width='200' height='200' />
                 <p className="h-auto my-auto font-normal text-gray-700 dark:text-gray-200">
                     {props.balance}
                 </p>
@@ -56,7 +51,7 @@ const LoanCard: FC<AssetCardProps> = (props: AssetCardProps) => {
                 Swap
             </button>
         </div>
-    )
-}
+    );
+};
 
-export default LoanCard
+export default LoanCard;
