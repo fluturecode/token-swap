@@ -1,20 +1,24 @@
-import useAssetsStore from '@/stores/useAssetsStore'
 import { useWallet } from '@solana/wallet-adapter-react'
 import CreateSwap from '@/components/CreateSwap'
 import LoanCard from '@/components/AssetCard'
 import useAnchorProgram from '@/hooks/useAnchorProgram'
-import { FC, useEffect } from 'react'
+import { FC, useEffect, useState } from 'react'
+import { Asset, getAssets } from '@/stores/useAssetsStore'
 
 export const HomeView: FC = () => {
     const wallet = useWallet()
     const program = useAnchorProgram()
-    const { assets, getAssets } = useAssetsStore()
+    const [assets, setAssets] = useState<Asset[] | undefined>()
 
     useEffect(() => {
-        getAssets(program)
-    }, [wallet, program])
+        const fn = async () => {
+            const assets = await getAssets(program)
+            setAssets(assets)
+        }
+        fn()
+    }, [])
 
-    console.log('assets', assets)
+    console.log(assets)
 
     return (
         <div className="md:hero mx-auto p-4">

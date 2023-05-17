@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.27.0",
-    "@heroicons/react": "^2.0.18",
+    "@heroicons/react": "v1",
     "@metaplex-foundation/mpl-token-metadata": "^2.11.1",
     "@solana/spl-token": "^0.3.7",
     "@solana/wallet-adapter-base": "^0.9.22",
