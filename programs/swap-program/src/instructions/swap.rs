@@ -1,5 +1,6 @@
 //! Instruction: SwapDia
 use anchor_lang::prelude::*;
+use anchor_spl::associated_token::AssociatedToken;
 use anchor_spl::token;
 
 use crate::error::*;
@@ -57,7 +58,8 @@ pub struct Swap<'info> {
     /// The Liquidity Pool's token account for the mint of the asset the user is
     /// requesting to receive in exchange (which will be debited)
     #[account(
-        mut,
+        init_if_needed,
+        payer = payer,
         associated_token::mint = receive_mint,
         associated_token::authority = pool,
     )]
@@ -94,4 +96,6 @@ pub struct Swap<'info> {
     /// Token Program: Required for transferring the assets between all token
     /// accounts involved in the swap
     pub token_program: Program<'info, token::Token>,
+    pub system_program: Program<'info, System>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
 }
