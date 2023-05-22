@@ -39,7 +39,7 @@ export const RequestAirdrop: FC = () => {
                 type: 'success',
                 message: 'Airdrop successful!',
                 txid: signature,
-            });
+            })
 
             getUserSOLBalance(publicKey, connection);
         } catch (error: any) {
