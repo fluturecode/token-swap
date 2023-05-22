@@ -20,6 +20,7 @@ export const HomeView: FC = () => {
 
     console.log(assets)
 
+
     return (
         <div className="md:hero mx-auto p-4">
             <div className="md:hero-content flex flex-col">
@@ -30,26 +31,27 @@ export const HomeView: FC = () => {
                 </div>
                 {assets && (
                     <div>
-                        <CreateSwap assets={assets} />
+                        <CreateSwap />
                         <div className="text-left text-lg mb-2">
-                            <h3>Pool Tokens</h3>
+                            <h3>Assets</h3>
                         </div>
                         <div className="grid grid-cols-4 gap-4">
-                            {assets.map((asset, i) => (
-                                <LoanCard
-                                    key={i}
-                                    name={asset.name}
-                                    symbol={asset.symbol}
-                                    uri={asset.uri}
-                                    balance={asset.balance}
-                                    mint={asset.mint}
-                                    poolTokenAccount={asset.poolTokenAccount}
-                                />
-                            ))}
+                            {assets
+                                .map((asset, i) => (
+                                    <AssetCard
+                                        key={i}
+                                        name={asset.name}
+                                        symbol={asset.symbol}
+                                        uri={asset.uri}
+                                        balance={asset.balance}
+                                        mint={asset.mint}
+                                        poolTokenAccount={asset.poolTokenAccount}
+                                    />
+                                ))}
                         </div>
                     </div>
                 )}
             </div>
         </div>
-    )
-}
+    );
+};

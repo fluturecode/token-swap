@@ -178,7 +178,7 @@ const CreateSwap: React.FC<TokenSwapProps> = ({ assets }) => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default CreateSwap
+export default CreateSwap;
