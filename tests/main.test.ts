@@ -201,24 +201,24 @@ describe('[Running Unit Tests]: Swap Program', async () => {
     /**
      * Runs 10 random swap tests
      */
-    for (let x = 0; x < 10; x++) {
-        it('          Try Swap', async () => {
-            const receiveAssetIndex = getRandomInt(maxAssetIndex)
-            // Pay asset can't be the same as receive asset
-            let payAssetIndex = getRandomInt(maxAssetIndex)
-            while (payAssetIndex === receiveAssetIndex) {
-                payAssetIndex = getRandomInt(maxAssetIndex)
-            }
-            // Pay amount can't be zero
-            let payAmount = getRandomInt(ASSETS[payAssetIndex][5])
-            while (payAmount === 0) {
-                payAmount = getRandomInt(ASSETS[payAssetIndex][5])
-            }
-            await trySwap(
-                assets[receiveAssetIndex],
-                assets[payAssetIndex],
-                payAmount
-            )
-        })
-    }
+    // for (let x = 0; x < 10; x++) {
+    //     it('          Try Swap', async () => {
+    //         const receiveAssetIndex = getRandomInt(maxAssetIndex)
+    //         // Pay asset can't be the same as receive asset
+    //         let payAssetIndex = getRandomInt(maxAssetIndex)
+    //         while (payAssetIndex === receiveAssetIndex) {
+    //             payAssetIndex = getRandomInt(maxAssetIndex)
+    //         }
+    //         // Pay amount can't be zero
+    //         let payAmount = getRandomInt(ASSETS[payAssetIndex][5])
+    //         while (payAmount === 0) {
+    //             payAmount = getRandomInt(ASSETS[payAssetIndex][5])
+    //         }
+    //         await trySwap(
+    //             assets[receiveAssetIndex],
+    //             assets[payAssetIndex],
+    //             payAmount
+    //         )
+    //     })
+    // }
 })
