@@ -32,6 +32,7 @@ const SwapCard: React.FC<TokenSwapProps> = ({ assets }) => {
     const [amount, setAmount] = useState(0)
     const [receiveAmount, setReceiveAmount] = useState(0)
     const wallet = useWallet()
+
     useEffect(() => {
         // Calculate the receive amount based on the constant product formula
         const r = (toToken.balance * amount) / (fromToken.balance + amount)
@@ -44,8 +45,6 @@ const SwapCard: React.FC<TokenSwapProps> = ({ assets }) => {
         setFromToken(toToken)
         setToToken(fromToken)
     }
-
-    console.log(tokens[3].mint.toBase58())
 
     const swap = async () => {
         if (wallet.publicKey) {
