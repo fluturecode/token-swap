@@ -621,13 +621,16 @@ That's all there is to it!
 
 ### Tests
 
-The tests in this repository are straightforward tests of each instruction we just covered from the program.
+The tests in this repository are broken up as follows:
 
-1. Initialize the Liquidity Pool by creating the `LiquidityPool` PDA
+1. `upload-json.test.ts`: Uploads images to Arweave
 
-2. Fund the Liquidity Pool with some tokens of varying assets, so we have some diversity
+2. `create-assets.test.ts`: Creates & mints new asset tokens
 
-3. Run some random swaps!
+3. `main.test.ts`: straightforward tests of each instruction we just covered from the program.
+    - Initialize the Liquidity Pool by creating the `LiquidityPool` PDA
+    - Fund the Liquidity Pool with some tokens of varying assets, so we have some diversity
+    - Run some random swaps!
 
 ### UI
 
