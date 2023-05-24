@@ -1,5 +1,3 @@
-import { FC } from 'react'
-import Link from 'next/link'
 import Text from './Text'
 import NavElement from '@/components/nav-element'
 interface Props {
@@ -33,10 +31,6 @@ export const ContentContainer: React.FC<Props> = ({ children }) => {
                     </li>
                     <li>
                         <NavElement label="Home" href="/" />
-                    </li>
-                    <li>
-                        <NavElement label="Create Loan" href="/createnew" />
-                        <NavElement label="Open Loans" href="/openloans" />
                     </li>
                 </ul>
             </div>

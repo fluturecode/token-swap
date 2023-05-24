@@ -116,20 +116,6 @@ export const AppBar: React.FC = () => {
                 {/* Wallet & Settings */}
                 <div className="navbar-end">
                     <div className="hidden md:inline-flex align-items-center justify-items gap-6">
-                        <div className="text-white">
-                            <NavElement
-                                label="Home"
-                                href="/"
-                                navigationStarts={() => setIsNavOpen(false)}
-                            />
-                        </div>
-                        <div className="text-green-500">
-                            <NavElement
-                                label="Create"
-                                href="/create-new"
-                                navigationStarts={() => setIsNavOpen(false)}
-                            />
-                        </div>
                         <WalletMultiButtonDynamic className="btn-ghost btn-sm rounded-btn text-lg mr-6 " />
                     </div>
                     <label

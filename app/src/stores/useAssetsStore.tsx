@@ -34,6 +34,7 @@ export interface Asset {
     name: string
     symbol: string
     uri: string
+    decimals: number
     balance: number
     mint: PublicKey
     poolTokenAccount: PublicKey

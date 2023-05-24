@@ -5,7 +5,7 @@ import { mintNewTokens } from './util/token'
 import { ASSETS } from './util/const'
 
 // Constant to control whether or not metadata is added to the tokens
-const METADATA = false
+const METADATA = true
 
 /**
  * Script to create new assets and mint them to the local keypair for testing

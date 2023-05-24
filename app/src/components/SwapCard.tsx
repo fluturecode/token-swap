@@ -3,19 +3,13 @@ import { notify } from '@/utils/notifications'
 import { BN } from '@coral-xyz/anchor'
 import {
     TOKEN_PROGRAM_ID,
-    createAssociatedTokenAccount,
-    createAssociatedTokenAccountInstruction,
     getAssociatedTokenAddressSync,
 } from '@solana/spl-token'
-import { useAnchorWallet, useWallet } from '@solana/wallet-adapter-react'
-import {
-    PublicKey,
-    SystemProgram,
-    Transaction,
-    sendAndConfirmTransaction,
-} from '@solana/web3.js'
-import { useRouter } from 'next/router'
-import { FC, useEffect, useState } from 'react'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { PublicKey } from '@solana/web3.js'
+import { useEffect, useState } from 'react'
+import { TbArrowsLeftRight } from 'react-icons/tb'
+
 interface Asset {
     name: string
     symbol: string
@@ -30,9 +24,9 @@ interface TokenSwapProps {
     assets: Asset[]
 }
 
-const CreateSwap: React.FC<TokenSwapProps> = ({ assets }) => {
+const SwapCard: React.FC<TokenSwapProps> = ({ assets }) => {
     const tokens = assets
-    const router = useRouter()
+    const program = useAnchorProgram()
     const [fromToken, setFromToken] = useState(tokens[0])
     const [toToken, setToToken] = useState(tokens[1])
     const [amount, setAmount] = useState(0)
@@ -41,17 +35,15 @@ const CreateSwap: React.FC<TokenSwapProps> = ({ assets }) => {
     useEffect(() => {
         // Calculate the receive amount based on the constant product formula
         const r = (toToken.balance * amount) / (fromToken.balance + amount)
-
         const adjustedR = r / Math.pow(10, toToken.decimals)
-
-        setReceiveAmount(adjustedR)
+        const roundedR = Math.round(adjustedR * 100) / 100
+        setReceiveAmount(roundedR)
     }, [amount, fromToken, toToken])
 
-    const handleSwap = () => {
+    const handleFlop = () => {
         setFromToken(toToken)
         setToToken(fromToken)
     }
-    const program = useAnchorProgram()
 
     console.log(tokens[3].mint.toBase58())
 
@@ -101,7 +93,7 @@ const CreateSwap: React.FC<TokenSwapProps> = ({ assets }) => {
     }
     return (
         <div className="flex flex-row justify-center">
-            <div className="p-4 bg-white rounded-lg shadow-md">
+            <div className="p-4 shadow dark:bg-stone-900 dark:border-yellow-950 rounded-lg">
                 <div className="flex justify-between items-center mb-4">
                     <select
                         value={fromToken.symbol}
@@ -126,10 +118,10 @@ const CreateSwap: React.FC<TokenSwapProps> = ({ assets }) => {
                     </select>
 
                     <button
-                        onClick={handleSwap}
-                        className="p-2 bg-blue-500 text-white rounded"
+                        onClick={handleFlop}
+                        className="p-2 bg-yellow-700 hover:bg-yellow-900 text-white rounded"
                     >
-                        🔁
+                        <TbArrowsLeftRight />
                     </button>
 
                     <select
@@ -154,31 +146,43 @@ const CreateSwap: React.FC<TokenSwapProps> = ({ assets }) => {
                         )}
                     </select>
                 </div>
-                <div>
-                    <input
-                        className="h-12 w-full bg-black rounded-lg p-2 "
-                        placeholder="Amount"
-                        type="number"
-                        onChange={(e) =>
-                            setAmount(
-                                Number(e.target.value) *
-                                    10 ** fromToken.decimals
-                            )
-                        }
-                    ></input>
-                    <div className="w-full bg-black text-white align-middle mt-2 h-12 rounded-lg p-2 items-center">
-                        {receiveAmount}
+                <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-start space-x-4">
+                        <div className="flex flex-col">
+                            <label htmlFor="pay">Pay:</label>
+                            <input
+                                id="pay"
+                                className="bg-black rounded-lg p-2"
+                                placeholder="Amount"
+                                type="number"
+                                onChange={(e) =>
+                                    setAmount(
+                                        Number(e.target.value) *
+                                            10 ** fromToken.decimals
+                                    )
+                                }
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label htmlFor="receive">Receive:</label>
+                            <div
+                                id="receive"
+                                className="bg-green-950 text-white rounded-lg p-2"
+                            >
+                                {receiveAmount}
+                            </div>
+                        </div>
                     </div>
-                    <button
-                        className="w-full bg-black hover:bg-slate-900 h-12 mt-2 rounded-lg"
-                        onClick={swap}
-                    >
-                        Swap
-                    </button>
                 </div>
+                <button
+                    className="w-full bg-yellow-700 hover:bg-yellow-900 h-12 mt-2 rounded-lg"
+                    onClick={swap}
+                >
+                    Swap
+                </button>
             </div>
         </div>
     )
 }
 
-export default CreateSwap
+export default SwapCard

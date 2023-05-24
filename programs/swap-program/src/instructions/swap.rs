@@ -58,8 +58,7 @@ pub struct Swap<'info> {
     /// The Liquidity Pool's token account for the mint of the asset the user is
     /// requesting to receive in exchange (which will be debited)
     #[account(
-        init_if_needed,
-        payer = payer,
+        mut,
         associated_token::mint = receive_mint,
         associated_token::authority = pool,
     )]
@@ -67,7 +66,8 @@ pub struct Swap<'info> {
     /// The user's token account for the mint of the asset the user is
     /// requesting to receive in exchange (which will be credited)
     #[account(
-        mut,
+        init_if_needed,
+        payer = payer,
         associated_token::mint = receive_mint,
         associated_token::authority = payer,
     )]

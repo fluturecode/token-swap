@@ -1,62 +1,63 @@
-import { useNetworkConfiguration } from '@/contexts/NetworkConfigurationProvider'
-import { PublicKey } from '@solana/web3.js'
-import { request } from 'https'
-import Image from 'next/image'
-import { FC, useEffect, useState } from 'react'
+import { useNetworkConfiguration } from '@/contexts/NetworkConfigurationProvider';
+import { PublicKey } from '@solana/web3.js';
+import { request } from 'https';
+import Image from 'next/image';
+import { FC, useEffect, useState } from 'react';
 
 interface AssetCardProps {
-    name: string
-    symbol: string
-    uri: string
-    balance: number
-    mint: PublicKey
-    poolTokenAccount: PublicKey
+  name: string;
+  symbol: string;
+  uri: string;
+  decimals: number;
+  balance: number;
+  mint: PublicKey;
+  poolTokenAccount: PublicKey;
 }
 
 const LoanCard: FC<AssetCardProps> = (props: AssetCardProps) => {
-    const { networkConfiguration } = useNetworkConfiguration()
-    const [imagePath, setImagePath] = useState<string>('')
+  const { networkConfiguration } = useNetworkConfiguration();
+  const [imagePath, setImagePath] = useState<string>('');
 
-    async function getMetadataFromArweave(uri: string) {
-        const data = await fetch(uri).then((data) => data.json())
-        setImagePath(data.image)
-    }
+  const nominalBalance = Math.floor(props.balance / Math.pow(10, props.decimals));
 
-    useEffect(() => {
-        getMetadataFromArweave(props.uri)
-    }, [])
+  async function getMetadataFromArweave(uri: string) {
+    const data = await fetch(uri).then((data) => data.json());
+    setImagePath(data.image);
+  }
 
-    return (
-        <div className="w-auto pt-0 p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-            <div className="w-full text-right my-0 mb-2">
-                <a
-                    className="inline-flex mt-3 ml-2 items-center text-sm font-medium text-center text-slate-400"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={`https://explorer.solana.com/address/${props.mint.toBase58()}?cluster=${networkConfiguration}`}
-                >
-                    Explorer
-                </a>
-            </div>
-            <div className="mb-4 flex flex-row align-middle space-x-4">
-                <Image
-                    alt={props.name}
-                    src={imagePath}
-                    width="200"
-                    height="200"
-                />
-                <p className="h-auto my-auto font-normal text-gray-700 dark:text-gray-200">
-                    {props.balance}
-                </p>
-            </div>
-            <button
-                // onClick={() => borrow()}
-                className="mt-4 inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-            >
-                Swap
-            </button>
+  useEffect(() => {
+    getMetadataFromArweave(props.uri);
+  });
+
+  return (
+    <div className="w-auto pt-4 p-6 border rounded-lg shadow bg-stone-800 border-amber-950 dark:bg-stone-800 dark:border-amber-950">
+      <div className="flex flex-row">
+        <div className="flex-shrink-0">
+          <Image
+            className="rounded-full"
+            alt={props.name}
+            src={imagePath}
+            width="100"
+            height="100"
+          />
         </div>
-    )
-}
+        <div className="ml-4">
+          <p className="font-bold text-gray-400 dark:text-amber-500">{props.name}</p>
+          <p className="mt-2 font-semibold text-lg text-gray-700 dark:text-gray-200">{nominalBalance}</p>
+          <div className='mt-2'>
+          <a
+            className="text-xs font-medium text-slate-400"
+            target="_blank"
+            rel="noopener noreferrer"
+            href={`https://explorer.solana.com/address/${props.mint.toBase58()}?cluster=${networkConfiguration}`}
+          >
+            See on Explorer →
+          </a>
+        </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-export default LoanCard
+export default LoanCard;

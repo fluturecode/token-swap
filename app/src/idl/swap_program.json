@@ -225,6 +225,16 @@
             "Token Program: Required for transferring the assets between all token",
             "accounts involved in the swap"
           ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
@@ -292,6 +302,6 @@
     }
   ],
   "metadata": {
-    "address": "58YS7hZ1Sc1zPetRioEmA3R2zumu2kMTAXkKPs6RFpWQ"
+    "address": "4Nx62wVGSygnLwx3tf3q93JvkgjU5Tyx12ca3MTwxJnh"
   }
 }

@@ -2,14 +2,14 @@
 seeds = true
 skip-lint = false
 
-[programs.localnet]
-swap_program = "Hx1kdUBmEHP4tHXpeNahLSv6Y6pX82ZMLUsEW6Rv5cpj"
+[programs.devnet]
+swap_program = "4Nx62wVGSygnLwx3tf3q93JvkgjU5Tyx12ca3MTwxJnh"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "devnet"
 wallet = "/Users/joesol/.config/solana/id.json"
 
 [scripts]
