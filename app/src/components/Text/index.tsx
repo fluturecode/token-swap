@@ -1,24 +1,23 @@
-import Link from 'next/link';
-import React from 'react';
-import { cn } from '@/utils';
+import Link from 'next/link'
+import React from 'react'
+import { cn } from '@/utils'
 
 /**
  * Properties for a card component.
  */
 type TextProps = {
     variant:
-        | 'big-heading'
         | 'heading'
         | 'sub-heading'
         | 'nav-heading'
         | 'nav'
         | 'input'
-        | 'label';
-    className?: string;
-    href?: string;
-    children?: React.ReactNode;
-    id?: string;
-};
+        | 'label'
+    className?: string
+    href?: string
+    children?: React.ReactNode
+    id?: string
+}
 
 /**
  * Pre-defined styling, according to agreed-upon design-system.
@@ -32,7 +31,7 @@ const variants = {
     'sub-paragraph': 'text-base font-medium text-inherit',
     input: 'text-sm uppercase tracking-wide',
     label: 'text-xs uppercase tracking-wide',
-};
+}
 
 /**
  * Definition of a card component,the main purpose of
@@ -44,15 +43,18 @@ const variants = {
  * @param children Child elements to be rendered within the component.
  */
 const Text = ({ variant, className, href, children }: TextProps) => (
-    <p className={cn(className, variants[variant])}>
+    <p className={cn(className ?? '', variants[variant])}>
         {href ? (
-            <Link href={href} className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
+            <Link
+                href={href}
+                className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+            >
                 {children}
             </Link>
         ) : (
             children
         )}
     </p>
-);
+)
 
-export default Text;
+export default Text

@@ -5,7 +5,6 @@ import {
 } from '@metaplex-foundation/mpl-token-metadata'
 import { PublicKey } from '@solana/web3.js'
 import { SwapProgram } from '@/idl/swap_program'
-import { create } from 'zustand'
 import {
     getAssociatedTokenAddressSync,
     getMultipleAccounts as getMultipleTokenAccounts,
