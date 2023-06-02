@@ -628,9 +628,12 @@ The tests in this repository are broken up as follows:
 2. `create-assets.test.ts`: Creates & mints new asset tokens
 
 3. `main.test.ts`: straightforward tests of each instruction we just covered from the program.
+
     - Initialize the Liquidity Pool by creating the `LiquidityPool` PDA
     - Fund the Liquidity Pool with some tokens of varying assets, so we have some diversity
     - Run some random swaps!
+
+4. `master.test.ts`: For bootcamp administrators who would like to initialize a swap program with existing mints using their local keypair as a funder/authority
 
 ### UI
 

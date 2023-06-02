@@ -3,21 +3,9 @@ import { PublicKey } from '@solana/web3.js'
 import { SwapProgram } from '../target/types/swap_program'
 import assetsConfig from './util/assets.json'
 import { createPool, fundPool, swap } from './instructions'
-import {
-    calculateChangeInK,
-    calculateK,
-    fetchPool,
-    fetchPoolTokenAccounts,
-} from './util/swap'
-import {
-    logChangeInK,
-    logK,
-    logPool,
-    logPostSwap,
-    logPreSwap,
-} from './util/log'
+import { calculateK, fetchPool, fetchPoolTokenAccounts } from './util/swap'
+import { logPool } from './util/log'
 import { mintExistingTokens } from './util/token'
-import { ASSETS } from './util/const'
 
 // Seed prefix for the Liquidity Pool from our program
 const LIQUIDITY_POOL_SEED_PREFIX = 'liquidity_pool'
@@ -44,15 +32,88 @@ describe('[Running Unit Tests]: Swap Program', async () => {
         [Buffer.from(LIQUIDITY_POOL_SEED_PREFIX)],
         program.programId
     )[0]
-    const assets = assetsConfig.assets.map((o) => {
-        return {
-            name: o.name,
-            quantity: o.quantity,
-            decimals: o.decimals,
-            address: new PublicKey(o.address),
-        }
-    })
-    const maxAssetIndex = assetsConfig.assets.length - 1
+    // If you're reading this, you'll probably notice that we're manually
+    // overriding Gold, Cannon, and Rum with the real mints from the bootcamp.
+    //
+    // That's correct, the rest of the assets won't serve to upgrade your ship
+    // in the battle. RIP.
+    enum AssetFilter {
+        Gold,
+        Cannon,
+        Rum,
+        OnlyBootcamp,
+    }
+    const activeFilter = []
+    const assets = assetsConfig.assets
+        .filter((o) => {
+            if (activeFilter.includes(AssetFilter.Gold) && o.name == 'Gold') {
+                return true
+            }
+            if (
+                activeFilter.includes(AssetFilter.Cannon) &&
+                o.name == 'Cannon'
+            ) {
+                return true
+            }
+            if (activeFilter.includes(AssetFilter.Rum) && o.name == 'Rum') {
+                return true
+            }
+            if (
+                activeFilter.includes(AssetFilter.OnlyBootcamp) &&
+                !(o.name != 'Gold' && o.name != 'Cannon' && o.name != 'Rum')
+            ) {
+                return false
+            }
+            if (
+                !activeFilter.includes(AssetFilter.OnlyBootcamp) &&
+                o.name != 'Gold' &&
+                o.name != 'Cannon' &&
+                o.name != 'Rum'
+            ) {
+                return true
+            }
+        })
+        .map((o) => {
+            if (o.name == 'Gold') {
+                return {
+                    name: o.name,
+                    quantity: o.quantity,
+                    decimals: 9,
+                    address: new PublicKey(
+                        'goLdQwNaZToyavwkbuPJzTt5XPNR3H7WQBGenWtzPH3'
+                    ),
+                    mintNew: false,
+                }
+            } else if (o.name == 'Cannon') {
+                return {
+                    name: o.name,
+                    quantity: o.quantity,
+                    decimals: 9,
+                    address: new PublicKey(
+                        'boomkN8rQpbgGAKcWvR3yyVVkjucNYcq7gTav78NQAG'
+                    ),
+                    mintNew: false,
+                }
+            } else if (o.name == 'Rum') {
+                return {
+                    name: o.name,
+                    quantity: o.quantity,
+                    decimals: 9,
+                    address: new PublicKey(
+                        'rumwqxXmjKAmSdkfkc5qDpHTpETYJRyXY22DWYUmWDt'
+                    ),
+                    mintNew: false,
+                }
+            } else {
+                return {
+                    name: o.name,
+                    quantity: o.quantity,
+                    decimals: o.decimals,
+                    address: new PublicKey(o.address),
+                    mintNew: true,
+                }
+            }
+        })
 
     // Used as a flag to only initialize the Liquidity Pool once
     let programInitialized = false
@@ -81,17 +142,21 @@ describe('[Running Unit Tests]: Swap Program', async () => {
     })
 
     /**
-     * Fund the Liquidity Pool if we only just created it now
+     * Fund the Liquidity Pool
      */
     for (const asset of assets) {
         it(`          Fund Pool with: ${asset.name}`, async () => {
-            await mintExistingTokens(
-                provider.connection,
-                payer,
-                asset.address,
-                asset.quantity,
-                asset.decimals
-            )
+            if (asset.mintNew) {
+                await mintExistingTokens(
+                    provider.connection,
+                    payer,
+                    asset.address,
+                    asset.quantity,
+                    asset.decimals
+                )
+            } else {
+                console.log(`Minting overridden for ${asset.name}`)
+            }
             await fundPool(
                 program,
                 payer,
@@ -134,89 +199,4 @@ describe('[Running Unit Tests]: Swap Program', async () => {
      * Prints the Liquidity Pool's holdings (assets held in each token account)
      */
     it('          Get Liquidity Pool Data', async () => await getPoolData(true))
-
-    /**
-     *
-     * Attempt a swap with our swap program
-     *
-     * @param receive
-     * @param pay
-     * @param payAmount
-     */
-    async function trySwap(
-        receive: {
-            name: string
-            quantity: number
-            decimals: number
-            address: PublicKey
-        },
-        pay: {
-            name: string
-            quantity: number
-            decimals: number
-            address: PublicKey
-        },
-        payAmount: number
-    ) {
-        await mintExistingTokens(
-            provider.connection,
-            payer,
-            pay.address,
-            payAmount,
-            pay.decimals
-        )
-        await sleepSeconds(2)
-        const initialK = await getPoolData(false)
-        await logPreSwap(
-            provider.connection,
-            payer.publicKey,
-            poolAddress,
-            receive,
-            pay,
-            payAmount
-        )
-        await swap(
-            program,
-            payer,
-            poolAddress,
-            receive.address,
-            pay.address,
-            payAmount,
-            pay.decimals
-        )
-        await sleepSeconds(2)
-        await logPostSwap(
-            provider.connection,
-            payer.publicKey,
-            poolAddress,
-            receive,
-            pay
-        )
-        const resultingK = await getPoolData(false)
-        logChangeInK(calculateChangeInK(initialK, resultingK))
-    }
-
-    /**
-     * Runs 10 random swap tests
-     */
-    for (let x = 0; x < 10; x++) {
-        it('          Try Swap', async () => {
-            const receiveAssetIndex = getRandomInt(maxAssetIndex)
-            // Pay asset can't be the same as receive asset
-            let payAssetIndex = getRandomInt(maxAssetIndex)
-            while (payAssetIndex === receiveAssetIndex) {
-                payAssetIndex = getRandomInt(maxAssetIndex)
-            }
-            // Pay amount can't be zero
-            let payAmount = getRandomInt(ASSETS[payAssetIndex][5])
-            while (payAmount === 0) {
-                payAmount = getRandomInt(ASSETS[payAssetIndex][5])
-            }
-            await trySwap(
-                assets[receiveAssetIndex],
-                assets[payAssetIndex],
-                payAmount
-            )
-        })
-    }
 })
