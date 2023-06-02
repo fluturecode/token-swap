@@ -36,7 +36,10 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const { autoConnect } = useAutoConnect()
     const { networkConfiguration } = useNetworkConfiguration()
     const network = networkConfiguration as WalletAdapterNetwork
-    const endpoint = RPC_ENDPOINT
+    const endpoint = () => {
+        if (RPC_ENDPOINT) return RPC_ENDPOINT
+        throw 'RPC_ENDPOINT not set'
+    }
 
     console.log(network)
 
@@ -65,7 +68,7 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
     return (
         // TODO: updates needed for updating and referencing endpoint: wallet adapter rework
-        <ConnectionProvider endpoint={endpoint}>
+        <ConnectionProvider endpoint={endpoint()}>
             <WalletProvider
                 wallets={wallets}
                 onError={onError}
