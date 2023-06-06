@@ -26,7 +26,7 @@ export async function createPool(
             systemProgram: anchor.web3.SystemProgram.programId,
         })
         .signers([payer])
-        .rpc()
+        .rpc({ skipPreflight: true})
 }
 
 /**

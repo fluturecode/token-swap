@@ -1,0 +1,10 @@
+Streaming transaction logs mentioning 2XPCk692BVsayv38AUGT8toNMnEJz93fzgA9y7CBEpmu. Confirmed commitment
+Transaction executed in slot 220998817:
+  Signature: 4j2vjTz7y5MLdUXF7gUV6dnPFtSvdfip6XdHN6RcUq951jAbBaUfRJz84wKUVSAgcfvMweQPxF4cT3QNvMUdk9xa
+  Status: Error processing Instruction 0: Program failed to complete
+  Log Messages:
+    Program 2XPCk692BVsayv38AUGT8toNMnEJz93fzgA9y7CBEpmu invoke [1]
+    Program log: Instruction: CreatePool
+    Program 2XPCk692BVsayv38AUGT8toNMnEJz93fzgA9y7CBEpmu consumed 7798 of 200000 compute units
+    Program failed to complete: Instruction passed to inner instruction is too large (12884933932 > 1280)
+    Program 2XPCk692BVsayv38AUGT8toNMnEJz93fzgA9y7CBEpmu failed: Program failed to complete

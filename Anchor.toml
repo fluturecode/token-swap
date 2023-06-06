@@ -3,14 +3,14 @@ seeds = true
 skip-lint = false
 
 [programs.devnet]
-swap_program = "7832S4UAeNDGrqMSiZqhL5mqo9Xh1ytHKfcPe6AJapSi"
+swap_program = "CjKkpSZPFg5K3z3kHk7LiC1tamc2PG16bm6LnFbQY39n"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
 cluster = "devnet"
-wallet = "/Users/joesol/.config/solana/id.json"
+wallet = "/Users/Fluture/my-solana-wallet/my-kepair.json"
 
 [scripts]
 upload-json = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/upload-json.test.ts"
